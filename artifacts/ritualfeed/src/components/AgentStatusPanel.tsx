@@ -1,5 +1,5 @@
-import React from 'react'
-import { Activity, TrendingUp, Zap, Wallet } from 'lucide-react'
+import React, { useState } from 'react'
+import { Activity, TrendingUp, Zap, Wallet, ChevronRight } from 'lucide-react'
 import { useAccount, useChainId } from 'wagmi'
 import { useAgentStatus } from '../hooks/useAgentStatus'
 import { useSubscription } from '../hooks/useSubscription'
@@ -8,6 +8,7 @@ import { EXPLORER_URL, CONTRACT_ADDRESS, SUBSCRIPTION_PRICE } from '../config'
 import { MOCK_AGENT_STATUS } from '../data/mockDigest'
 import { formatEther } from 'viem'
 import { toast } from 'sonner'
+import { WalletModal } from './WalletButton'
 
 const IS_CONFIGURED = CONTRACT_ADDRESS !== 'YOUR_CONTRACT_ADDRESS'
 
@@ -37,6 +38,7 @@ interface AgentStatusContentProps {
 }
 
 export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentStatusContentProps) {
+  const [walletModalOpen, setWalletModalOpen] = useState(false)
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const { cycleCount, walletBalance, nextWakeupBlock } = useAgentStatus()
@@ -188,27 +190,48 @@ export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentSta
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Subscribe to receive AI research digests as they are published on-chain.
             </p>
-            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              {subPrice} RITUAL / digest
-            </p>
-            <button
-              onClick={onSubscribe}
-              disabled={isSubscribing || wrongNetwork || !isConnected}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-              aria-label={`Subscribe to Research Digest for ${subPrice} RITUAL`}
-              title={wrongNetwork ? 'Switch to Ritual Testnet to continue' : undefined}
-            >
-              {isSubscribing ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-blue-300 border-t-white rounded-full animate-spin" />
-                  Processing...
-                </span>
-              ) : isConnected ? (
-                'Subscribe'
-              ) : (
-                'Connect wallet to subscribe'
-              )}
-            </button>
+
+            {/* Price row */}
+            <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
+              <span className="text-xs text-slate-500 dark:text-slate-400">Price per digest</span>
+              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{subPrice} RITUAL</span>
+            </div>
+
+            {!isConnected ? (
+              /* Not connected — CTA to connect */
+              <button
+                onClick={() => setWalletModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm py-2.5 rounded-lg transition-colors font-medium shadow-sm shadow-blue-600/20"
+                aria-label="Connect wallet to subscribe"
+              >
+                <Wallet className="w-4 h-4" />
+                Connect Wallet to Subscribe
+                <ChevronRight className="w-3.5 h-3.5 opacity-70" />
+              </button>
+            ) : wrongNetwork ? (
+              /* Wrong network warning */
+              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
+                <p className="text-xs font-medium text-amber-800 dark:text-amber-300">⚠️ Switch to Ritual Testnet</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">Chain ID: 1979</p>
+              </div>
+            ) : (
+              /* Connected + correct network — Subscribe */
+              <button
+                onClick={onSubscribe}
+                disabled={isSubscribing}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                aria-label={`Subscribe to Research Digest for ${subPrice} RITUAL`}
+              >
+                {isSubscribing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-blue-300 border-t-white rounded-full animate-spin" />
+                    Confirming…
+                  </span>
+                ) : (
+                  `Subscribe — ${subPrice} RITUAL`
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -227,6 +250,9 @@ export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentSta
           View contract on Ritual Explorer
         </a>
       </div>
+
+      {/* Wallet connect modal (triggered from subscribe CTA) */}
+      {walletModalOpen && <WalletModal onClose={() => setWalletModalOpen(false)} />}
     </div>
   )
 }
