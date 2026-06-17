@@ -1,0 +1,3722 @@
+# RitualFeed — Comprehensive Lovable Prompt Playbook
+## Production-Scale SDLC Build Guide with Stakeholder Enhancement Integration
+
+**Version:** 2.0 | **Last Updated:** June 2026  
+**Project:** RitualFeed - Autonomous AI Research Digest on Ritual Chain  
+**Target Deployment:** Vercel + Ritual Testnet  
+
+---
+
+## TABLE OF CONTENTS
+
+1. [Executive Overview](#executive-overview)
+2. [Prerequisites & Setup](#prerequisites--setup)
+3. [Phase 1: Architecture & Foundation](#phase-1-architecture--foundation)
+4. [Phase 2: Core Features & UI](#phase-2-core-features--ui)
+5. [Phase 3: Advanced Features & Intelligence](#phase-3-advanced-features--intelligence)
+6. [Phase 4: Production Hardening](#phase-4-production-hardening)
+7. [Phase 5: Deployment & Monitoring](#phase-5-deployment--monitoring)
+8. [Quick Reference & Checklists](#quick-reference--checklists)
+
+---
+
+## EXECUTIVE OVERVIEW
+
+### Project Scope
+RitualFeed is transitioning from an MVP to a **production-grade autonomous research digest platform** on Ritual Chain. This playbook incorporates 20 stakeholder enhancement requests across three strategic phases:
+
+- **Phase 7: Observability** - Logging, metrics, monitoring, alerting
+- **Phase 8: AI Intelligence** - Embeddings, vector search, recommendations, RAG
+- **Phase 9: Production Scale** - Caching, indexers, load testing, scaling
+
+### What Gets Built vs What Stays Blockchain-Side
+
+| Component | Lovable Builds | Ritual/Backend Owns |
+|-----------|-----------------|-------------------|
+| UI/UX | ✅ All screens, modals, forms | - |
+| Real-time Feed | ✅ Display + Live Updates | ✅ DigestAgent Contract |
+| Search Engine | ✅ Frontend filters | ✅ Indexer (Graph/Subsquid) |
+| Recommendations | ✅ Render + Preferences UI | ✅ Vector DB + ML Pipeline |
+| RAG Chatbot | ✅ UI + Message Threading | ✅ LLM + Retrieval Logic |
+| Notifications | ✅ Toast + UI Modals | ✅ Backend (Email/Telegram) |
+| Wallet Integration | ✅ Connect + Transactions | ✅ Contract Calls |
+| Analytics Dashboard | ✅ Charts + Tables | ✅ Event Indexing |
+| Caching | ✅ React Query/SWR | ✅ Redis (Backend) |
+| Revenue Tiers | ✅ UI + Paywalls | ✅ Smart Contract Gates |
+
+---
+
+## PREREQUISITES & SETUP
+
+### Before Opening Lovable
+
+Collect and document these values:
+
+```
+CONTRACT_ADDRESS = [Your deployed DigestAgent address on Ritual Testnet]
+SUBSCRIPTION_PRICE_WEI = [Price in wei, e.g., "1000000000000000000"]
+RITUAL_CHAIN_ID = 1979
+RPC_ENDPOINT = https://ritual-testnet-rpc.example.com
+VECTOR_DB_ENDPOINT = [Qdrant/Weaviate/Pinecone instance]
+INDEXER_ENDPOINT = [Subsquid/Graph API]
+BACKEND_API = https://api.ritualfeed.example.com
+OPENAI_API_KEY = [For RAG + Embeddings]
+```
+
+### Tech Stack (Non-Negotiable)
+
+- **Framework:** React 18 + TypeScript
+- **Styling:** Tailwind CSS (Production Palette)
+- **Wallet:** wagmi + ethers.js
+- **Data Fetching:** React Query or SWR
+- **Icons:** Lucide React
+- **Real-time:** ethers.js EventListener (or WebSocket)
+- **Search:** Algolia or Meilisearch (optional frontend)
+- **Vector Search:** Qdrant client (optional)
+- **Charts:** Recharts (for Analytics Dashboard)
+- **Notifications:** React Toastify + Browser Notifications API
+- **Forms:** React Hook Form + Zod validation
+
+### Production Color Palette (Brand Identity)
+
+```
+Primary: #2563EB (Ritual Blue)
+Secondary: #9333EA (AI Purple)
+Success: #10B981 (Research Green)
+Warning: #F59E0B (Caution Amber)
+Danger: #EF4444 (Error Red)
+Neutral-50: #F9FAFB (Background)
+Neutral-900: #111827 (Text)
+Accent-1: #06B6D4 (Cyan - Research)
+Accent-2: #EC4899 (Pink - Engagement)
+Dark Mode: #0F172A (Slate-900)
+```
+
+---
+
+# PHASE 1: ARCHITECTURE & FOUNDATION
+
+## Objective
+Establish scalable, maintainable foundation. All components follow SOLID principles. No blockchain logic yet—prepare the skeleton.
+
+---
+
+## PROMPT P1-01: Project Scaffold with Production Structure
+
+**Paste this into Lovable chat:**
+
+```
+Create a production-grade React 18 + TypeScript + Tailwind CSS project named "RitualFeed" 
+following these specifications:
+
+PROJECT STRUCTURE:
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx (Root layout with providers)
+│   │   ├── page.tsx (Home page)
+│   │   ├── search/page.tsx (Advanced search)
+│   │   ├── recommendations/page.tsx (Personalized digest)
+│   │   ├── analytics/page.tsx (User analytics dashboard)
+│   │   ├── chat/page.tsx (RAG chatbot)
+│   │   ├── profile/page.tsx (User settings + subscription tier)
+│   │   └── [notFound].tsx
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Header.tsx
+│   │   │   ├── Navigation.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   └── MobileBottomSheet.tsx
+│   │   ├── feed/
+│   │   │   ├── PaperCard.tsx
+│   │   │   ├── PaperCardSkeleton.tsx
+│   │   │   ├── DigestFeed.tsx
+│   │   │   ├── TopicFilter.tsx
+│   │   │   └── EmptyState.tsx
+│   │   ├── search/
+│   │   │   ├── SearchBar.tsx
+│   │   │   ├── AdvancedFilters.tsx
+│   │   │   ├── SearchResults.tsx
+│   │   │   └── CitationTrends.tsx
+│   │   ├── agent/
+│   │   │   ├── AgentStatusCard.tsx
+│   │   │   ├── AgentMonitoringDashboard.tsx
+│   │   │   ├── PerformanceMetrics.tsx
+│   │   │   └── HealthIndicator.tsx
+│   │   ├── recommendations/
+│   │   │   ├── PersonalizedDigest.tsx
+│   │   │   ├── RecommendationCard.tsx
+│   │   │   └── TrendingTopics.tsx
+│   │   ├── chat/
+│   │   │   ├── ChatWindow.tsx
+│   │   │   ├── ChatMessage.tsx
+│   │   │   ├── ChatInput.tsx
+│   │   │   └── RAGContext.tsx
+│   │   ├── social/
+│   │   │   ├── BookmarkButton.tsx
+│   │   │   ├── LikeButton.tsx
+│   │   │   ├── ShareButton.tsx
+│   │   │   └── SavedPapers.tsx
+│   │   ├── wallet/
+│   │   │   ├── WalletConnect.tsx
+│   │   │   ├── WalletStatus.tsx
+│   │   │   ├── SubscriptionGate.tsx
+│   │   │   └── TierBadge.tsx
+│   │   ├── notifications/
+│   │   │   ├── NotificationBell.tsx
+│   │   │   ├── NotificationCenter.tsx
+│   │   │   ├── NotificationPreferences.tsx
+│   │   │   └── ToastNotification.tsx
+│   │   ├── analytics/
+│   │   │   ├── UserMetricsChart.tsx
+│   │   │   ├── EngagementDashboard.tsx
+│   │   │   ├── SubscriptionAnalytics.tsx
+│   │   │   └── PaperPopularityChart.tsx
+│   │   ├── modals/
+│   │   │   ├── AboutModal.tsx
+│   │   │   ├── SettingsModal.tsx
+│   │   │   ├── ConfirmationModal.tsx
+│   │   │   └── NotificationPreferencesModal.tsx
+│   │   └── common/
+│   │       ├── Button.tsx
+│   │       ├── Card.tsx
+│   │       ├── Badge.tsx
+│   │       ├── Spinner.tsx
+│   │       ├── ErrorBoundary.tsx
+│   │       └── LoadingState.tsx
+│   ├── hooks/
+│   │   ├── useDigestFeed.ts (Live data from contract)
+│   │   ├── useAgentStatus.ts (Agent metrics)
+│   │   ├── useWallet.ts (Wallet integration wrapper)
+│   │   ├── useSubscription.ts (Subscription state)
+│   │   ├── useSearch.ts (Search + indexer integration)
+│   │   ├── useRecommendations.ts (Vector DB queries)
+│   │   ├── useNotifications.ts (Toast + notifications)
+│   │   ├── useChatRAG.ts (RAG chatbot)
+│   │   ├── useAnalytics.ts (Event tracking)
+│   │   ├── useSocialActions.ts (Bookmarks, likes, shares)
+│   │   └── useLocalStorage.ts (Preferences)
+│   ├── config/
+│   │   ├── chain.ts (Ritual Chain config)
+│   │   ├── contract.ts (DigestAgent ABI)
+│   │   ├── colors.ts (Production palette)
+│   │   ├── constants.ts (All constants)
+│   │   └── providers.ts (Wagmi config)
+│   ├── utils/
+│   │   ├── format.ts (Number, date, address formatting)
+│   │   ├── validation.ts (Zod schemas)
+│   │   ├── api.ts (Backend API client)
+│   │   ├── indexer.ts (Subsquid/Graph queries)
+│   │   ├── vectorDb.ts (Qdrant client)
+│   │   ├── llm.ts (OpenAI client for embeddings)
+│   │   └── errorHandler.ts (Centralized error handling)
+│   ├── types/
+│   │   ├── index.ts (Global type definitions)
+│   │   ├── paper.ts
+│   │   ├── agent.ts
+│   │   ├── user.ts
+│   │   └── notifications.ts
+│   ├── providers/
+│   │   ├── WagmiProvider.tsx
+│   │   ├── ReactQueryProvider.tsx
+│   │   ├── ToastProvider.tsx
+│   │   └── AnalyticsProvider.tsx
+│   ├── styles/
+│   │   ├── globals.css (Tailwind + custom)
+│   │   └── animations.css (Smooth transitions)
+│   └── constants/
+│       └── config.ts
+
+DESIGN SYSTEM & PALETTE (implement in tailwind.config.js):
+- Primary: #2563EB (Ritual Blue)
+- Secondary: #9333EA (AI Purple)
+- Success: #10B981 (Research Green)
+- Warning: #F59E0B (Caution Amber)
+- Danger: #EF4444 (Error Red)
+- Neutral: Slate-50 to Slate-900
+- Accents: Cyan (#06B6D4), Pink (#EC4899)
+
+REQUIRED FEATURES TO STUB:
+1. Header with logo, navigation, notification bell
+2. Responsive mobile nav (hamburger on mobile)
+3. Footer with links, contact, legal
+4. Hero section on home
+5. Digest feed container (empty state)
+6. Search bar with icon
+7. Agent status sidebar (desktop only)
+8. Mobile bottom sheet navigation
+9. Dark mode toggle
+10. Accessibility: semantic HTML, ARIA labels
+
+STYLING RULES:
+- Mobile-first responsive design (Tailwind breakpoints)
+- Animations: fade-in, slide-up, stagger (0.3-0.6s duration)
+- Hover states on all buttons (scale + shadow)
+- Focus states: 2px solid ring (blue-500)
+- Loading skeletons match component dimensions
+- No horizontal scroll on any viewport
+
+TYPOGRAPHY:
+- Headings: Inter Bold (h1-h6)
+- Body: Inter Regular (14-16px)
+- Monospace: JetBrains Mono (code snippets)
+
+Create with best practices:
+- Type-safe components (interfaces for all props)
+- Compound components where applicable
+- Error boundaries in critical sections
+- Loading skeletons pre-built
+- Mobile-first responsive grid
+```
+
+**After Lovable generates:** Verify the file structure appears correctly in the editor. You should see no TypeScript errors.
+
+---
+
+## PROMPT P1-02: Wagmi & Chain Configuration (Ritual Chain)
+
+**Paste this into Lovable chat:**
+
+```
+Add Wagmi wallet integration for Ritual Chain testnet. Create these files:
+
+FILE: src/config/providers.ts
+────────────────────────────
+Import { WagmiConfig, createConfig, mainnet, configureChains } from 'wagmi'
+Import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
+Import { Web3Modal } from '@web3modal/react'
+
+Create a custom chain config for Ritual Testnet:
+
+const ritualTestnet = {
+  id: 1979,
+  name: 'Ritual Testnet',
+  network: 'ritual-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ritual',
+    symbol: 'RITUAL',
+  },
+  rpcUrls: {
+    public: { http: ['https://ritual-testnet-rpc.com'] },
+    default: { http: ['https://ritual-testnet-rpc.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://ritual-testnet-explorer.com' },
+  },
+}
+
+Set up createConfig with:
+- supportedChains: [ritualTestnet]
+- Fallback transport using publicHttpRpcProvider
+- MetaMask connector
+- InjectedConnector for browser wallets
+- AutoConnect enabled
+
+FILE: src/config/chain.ts
+──────────────────────────
+Export const RITUAL_CHAIN_ID = 1979
+Export const RITUAL_RPC = 'https://ritual-testnet-rpc.com'
+Export const CONTRACT_ADDRESS = '0x...' // Placeholder—user fills this
+Export const SUBSCRIPTION_PRICE_WEI = '1000000000000000000' // 1 RITUAL
+
+Add helper function:
+const isRitualChain = (chainId?: number): boolean => chainId === RITUAL_CHAIN_ID
+
+Implement checkNetworkMatch() that:
+- Compares window.ethereum.networkVersion to RITUAL_CHAIN_ID
+- Returns boolean
+- Used by useWallet hook
+
+FILE: src/config/contract.ts
+──────────────────────────────
+Export the DigestAgent contract ABI as DIGEST_AGENT_ABI:
+
+DIGEST_AGENT_ABI = [
+  {
+    name: 'latestDigest',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      { name: 'timestamp', type: 'uint256' },
+      { name: 'papers', type: 'tuple[]', components: [
+        { name: 'id', type: 'string' },
+        { name: 'title', type: 'string' },
+        { name: 'authors', type: 'string' },
+        { name: 'abstract', type: 'string' },
+        { name: 'arxivId', type: 'string' },
+        { name: 'score', type: 'uint8' },
+        { name: 'summary', type: 'string' },
+        { name: 'topics', type: 'string[]' },
+      ]},
+      { name: 'agentMetrics', type: 'tuple', components: [
+        { name: 'cycleCount', type: 'uint256' },
+        { name: 'successRate', type: 'uint8' },
+        { name: 'nextWakeupBlock', type: 'uint256' },
+        { name: 'balance', type: 'uint256' },
+      ]},
+    ],
+  },
+  {
+    name: 'subscribe',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'unsubscribe',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'isSubscribed',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'user', type: 'address' }],
+    outputs: [{ name: '', type: 'bool' }],
+  },
+  {
+    name: 'DigestPublished',
+    type: 'event',
+    inputs: [
+      { name: 'timestamp', type: 'uint256', indexed: true },
+      { name: 'paperCount', type: 'uint256', indexed: false },
+    ],
+  },
+]
+
+FILE: src/providers/WagmiProvider.tsx
+───────────────────────────────────────
+Create React component:
+
+export default function WagmiProvider({ children }) {
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </WagmiConfig>
+  )
+}
+
+Update src/app/layout.tsx to wrap all pages with <WagmiProvider>.
+
+VALIDATION:
+- No TypeScript errors in config files
+- Provider renders without crashing
+- window.ethereum is accessible (check Console)
+- Chain ID 1979 is recognized
+```
+
+**After Lovable generates:** Open DevTools Console and verify no Wagmi errors. Check that the config files import cleanly.
+
+---
+
+## PROMPT P1-03: Environment Variables & API Layer Foundation
+
+**Paste this into Lovable chat:**
+
+```
+Set up environment variable infrastructure and API client layer:
+
+FILE: .env.example
+──────────────────
+NEXT_PUBLIC_RITUAL_CHAIN_ID=1979
+NEXT_PUBLIC_RPC_URL=https://ritual-testnet-rpc.com
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
+NEXT_PUBLIC_SUBSCRIPTION_PRICE_WEI=1000000000000000000
+NEXT_PUBLIC_BACKEND_API=https://api.ritualfeed.example.com
+NEXT_PUBLIC_VECTOR_DB_URL=https://vector-db.ritualfeed.example.com
+NEXT_PUBLIC_INDEXER_API=https://api.subsquid.io
+NEXT_PUBLIC_OPENAI_API_KEY=sk-...
+NEXT_PUBLIC_NOTIFICATION_WEBHOOK=https://notify.ritualfeed.example.com
+
+FILE: src/utils/api.ts
+──────────────────────
+Create a centralized API client:
+
+import axios, { AxiosInstance, AxiosError } from 'axios'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:3001'
+
+class ApiClient {
+  private client: AxiosInstance
+
+  constructor() {
+    this.client = axios.create({
+      baseURL: API_BASE_URL,
+      timeout: 30000,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    // Add interceptor for error handling
+    this.client.interceptors.response.use(
+      (response) => response.data,
+      (error: AxiosError) => {
+        console.error('API Error:', error.response?.status, error.message)
+        return Promise.reject({
+          status: error.response?.status,
+          message: error.response?.data?.message || 'API request failed',
+        })
+      },
+    )
+  }
+
+  // Search endpoints
+  async search(query: string, filters?: SearchFilters): Promise<SearchResult[]> {
+    return this.client.get('/search', { params: { q: query, ...filters } })
+  }
+
+  // Recommendations endpoints
+  async getRecommendations(userId: string): Promise<Paper[]> {
+    return this.client.get(`/recommendations/${userId}`)
+  }
+
+  // Chat/RAG endpoints
+  async chatWithArchive(message: string, context?: string): Promise<ChatResponse> {
+    return this.client.post('/chat', { message, context })
+  }
+
+  // Analytics endpoints
+  async getUserMetrics(userId: string): Promise<UserMetrics> {
+    return this.client.get(`/analytics/user/${userId}`)
+  }
+
+  // Citation intelligence endpoints
+  async getCitationTrends(): Promise<CitationTrend[]> {
+    return this.client.get('/citations/trends')
+  }
+
+  // Subscription endpoints
+  async updateSubscriptionTier(userId: string, tier: 'free' | 'pro' | 'researcher'): Promise<void> {
+    return this.client.post(`/subscriptions/${userId}/tier`, { tier })
+  }
+
+  // Notification endpoints
+  async updateNotificationPreferences(userId: string, prefs: NotificationPrefs): Promise<void> {
+    return this.client.post(`/notifications/${userId}/preferences`, prefs)
+  }
+}
+
+export const apiClient = new ApiClient()
+
+TYPES FILE: src/types/index.ts
+──────────────────────────────────
+Export interfaces:
+
+interface Paper {
+  id: string
+  title: string
+  authors: string
+  abstract: string
+  arxivId: string
+  score: 'high' | 'medium' | 'low' // Mapped from uint8
+  summary: string
+  topics: string[]
+  citations?: number
+  publishedAt: number
+  bookmarked?: boolean
+  liked?: boolean
+}
+
+interface SearchFilters {
+  author?: string
+  topic?: string
+  dateFrom?: number
+  dateTo?: number
+  sortBy?: 'relevance' | 'recent' | 'citations'
+}
+
+interface SearchResult extends Paper {
+  relevanceScore: number
+}
+
+interface ChatResponse {
+  message: string
+  sources: Paper[]
+  confidence: number
+}
+
+interface UserMetrics {
+  totalPapersRead: number
+  topicInterests: { [key: string]: number }
+  engagementRate: number
+  subscriptionTier: 'free' | 'pro' | 'researcher'
+}
+
+interface CitationTrend {
+  topic: string
+  growthRate: number
+  recentCitations: number
+}
+
+interface NotificationPrefs {
+  emailEnabled: boolean
+  telegramEnabled: boolean
+  discordEnabled: boolean
+  browserPushEnabled: boolean
+  newDigestAlert: boolean
+  trendingAlert: boolean
+}
+
+interface AgentMetrics {
+  cycleCount: number
+  successRate: number
+  nextWakeupBlock: number
+  balance: string // wei
+  gasUsed: string
+  runtime: number // ms
+}
+
+interface NotificationPrefs {
+  emailEnabled: boolean
+  telegramEnabled: boolean
+  discordEnabled: boolean
+  browserPushEnabled: boolean
+  newDigestAlert: boolean
+  trendingAlert: boolean
+}
+
+Verify:
+- .env.example is complete
+- API client methods are typed
+- No axios errors in implementation
+- All endpoints mapped to types
+```
+
+**After Lovable generates:** Check that `.env.example` exists and API client has no TypeScript errors.
+
+---
+
+## PHASE 1 ACCEPTANCE CRITERIA
+
+✅ All checks must pass before proceeding to Phase 2:
+
+- [ ] File structure matches specification exactly
+- [ ] `src/config/chain.ts` has RITUAL_CHAIN_ID = 1979
+- [ ] `src/config/contract.ts` exports DIGEST_AGENT_ABI
+- [ ] Wagmi provider wraps app layout
+- [ ] Zero TypeScript errors in editor
+- [ ] `.env.example` complete with all keys
+- [ ] API client (`src/utils/api.ts`) has 8+ method stubs
+- [ ] Production color palette in `tailwind.config.js`
+- [ ] Semantic HTML visible (no accessibility warnings)
+- [ ] Mobile-first responsive grid confirmed
+
+---
+
+# PHASE 2: CORE FEATURES & UI
+
+## Objective
+Build all UI components with mock data. No blockchain integration yet—focus on layout, responsiveness, and user flow.
+
+---
+
+## PROMPT P2-01: Paper Card Component & Skeleton
+
+**Paste this into Lovable chat:**
+
+```
+Create the foundational PaperCard component with three score states and a loading skeleton:
+
+FILE: src/components/feed/PaperCard.tsx
+───────────────────────────────────────
+
+import React from 'react'
+import { Heart, Bookmark, Share2, ExternalLink } from 'lucide-react'
+
+interface PaperCardProps {
+  paper: Paper
+  onBookmark?: (id: string) => void
+  onLike?: (id: string) => void
+  onShare?: (id: string) => void
+}
+
+export default function PaperCard({
+  paper,
+  onBookmark,
+  onLike,
+  onShare,
+}: PaperCardProps) {
+  const [isBookmarked, setIsBookmarked] = React.useState(false)
+  const [isLiked, setIsLiked] = React.useState(false)
+
+  const scoreColor = {
+    high: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    medium: 'bg-amber-100 text-amber-800 border-amber-300',
+    low: 'bg-red-100 text-red-800 border-red-300',
+  }[paper.score]
+
+  const scoreIcon = {
+    high: '🎯',
+    medium: '⚠️',
+    low: '📌',
+  }[paper.score]
+
+  return (
+    <article 
+      className="group relative rounded-lg border border-slate-200 bg-white p-4 
+        shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300 
+        dark:bg-slate-800 dark:border-slate-700"
+      role="article"
+      aria-label={paper.title}
+    >
+      {/* Header: Title + Score Badge */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug flex-1 line-clamp-3">
+          {paper.title}
+        </h3>
+        <span 
+          className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md 
+            text-xs font-medium border whitespace-nowrap ${scoreColor}`}
+          aria-label={`Relevance score: ${paper.score}`}
+        >
+          {scoreIcon} {paper.score}
+        </span>
+      </div>
+
+      {/* Metadata: Authors + Date */}
+      <div className="mb-3 space-y-1">
+        <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+          <span className="font-medium">Authors:</span> {paper.authors}
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-500">
+          Published: {new Date(paper.publishedAt * 1000).toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* Abstract */}
+      <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 line-clamp-3">
+        {paper.abstract}
+      </p>
+
+      {/* AI Summary (if available) */}
+      {paper.summary && (
+        <div className="mb-3 p-2 rounded bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-400">
+          <p className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-1">
+            ✨ AI Summary
+          </p>
+          <p className="text-xs text-blue-800 dark:text-blue-300 line-clamp-2">
+            {paper.summary}
+          </p>
+        </div>
+      )}
+
+      {/* Topics/Tags */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {paper.topics.slice(0, 3).map((topic) => (
+          <span
+            key={topic}
+            className="inline-block px-2 py-1 rounded-full bg-purple-100 text-purple-700 
+              text-xs font-medium dark:bg-purple-900/30 dark:text-purple-300"
+          >
+            #{topic}
+          </span>
+        ))}
+        {paper.topics.length > 3 && (
+          <span className="text-xs text-slate-500">+{paper.topics.length - 3} more</span>
+        )}
+      </div>
+
+      {/* Citation Count (if available) */}
+      {paper.citations !== undefined && (
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+          📚 {paper.citations} citations
+        </p>
+      )}
+
+      {/* Action Footer */}
+      <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
+        <a
+          href={`https://arxiv.org/abs/${paper.arxivId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 px-3 py-2 rounded-md 
+            bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium 
+            transition-colors duration-200"
+          aria-label={`Read paper ${paper.title} on arXiv`}
+        >
+          View on arXiv <ExternalLink className="w-3 h-3" />
+        </a>
+
+        {/* Social Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setIsBookmarked(!isBookmarked)
+              onBookmark?.(paper.id)
+            }}
+            className={`p-2 rounded-md transition-colors duration-200 ${
+              isBookmarked
+                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30'
+                : 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-700 dark:text-slate-400'
+            }`}
+            aria-pressed={isBookmarked}
+            aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark paper'}
+            title={isBookmarked ? 'Bookmarked' : 'Bookmark'}
+          >
+            <Bookmark className="w-4 h-4" fill={isBookmarked ? 'currentColor' : 'none'} />
+          </button>
+
+          <button
+            onClick={() => {
+              setIsLiked(!isLiked)
+              onLike?.(paper.id)
+            }}
+            className={`p-2 rounded-md transition-colors duration-200 ${
+              isLiked
+                ? 'bg-pink-100 text-pink-600 dark:bg-pink-900/30'
+                : 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-700 dark:text-slate-400'
+            }`}
+            aria-pressed={isLiked}
+            aria-label={isLiked ? 'Unlike' : 'Like paper'}
+            title={isLiked ? 'Liked' : 'Like'}
+          >
+            <Heart className="w-4 h-4" fill={isLiked ? 'currentColor' : 'none'} />
+          </button>
+
+          <button
+            onClick={() => onShare?.(paper.id)}
+            className="p-2 rounded-md hover:bg-slate-100 text-slate-600 
+              transition-colors duration-200 dark:hover:bg-slate-700 dark:text-slate-400"
+            aria-label="Share paper"
+            title="Share"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+FILE: src/components/feed/PaperCardSkeleton.tsx
+───────────────────────────────────────────────
+
+export default function PaperCardSkeleton() {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700 animate-pulse">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-slate-200 rounded w-3/4 dark:bg-slate-700" />
+          <div className="h-4 bg-slate-200 rounded w-1/2 dark:bg-slate-700" />
+        </div>
+        <div className="h-6 w-12 bg-slate-200 rounded flex-shrink-0 dark:bg-slate-700" />
+      </div>
+
+      <div className="space-y-2 mb-4">
+        <div className="h-3 bg-slate-200 rounded w-full dark:bg-slate-700" />
+        <div className="h-3 bg-slate-200 rounded w-5/6 dark:bg-slate-700" />
+      </div>
+
+      <div className="h-16 bg-slate-100 rounded mb-4 dark:bg-slate-700/50" />
+
+      <div className="flex gap-2 mb-4">
+        <div className="h-6 w-16 bg-slate-200 rounded-full dark:bg-slate-700" />
+        <div className="h-6 w-16 bg-slate-200 rounded-full dark:bg-slate-700" />
+      </div>
+
+      <div className="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
+        <div className="h-9 w-24 bg-blue-200 rounded dark:bg-blue-900/30" />
+        <div className="flex gap-2">
+          <div className="h-9 w-9 bg-slate-200 rounded-md dark:bg-slate-700" />
+          <div className="h-9 w-9 bg-slate-200 rounded-md dark:bg-slate-700" />
+          <div className="h-9 w-9 bg-slate-200 rounded-md dark:bg-slate-700" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+MOCK DATA for testing:
+────────────────────
+
+export const MOCK_PAPERS: Paper[] = [
+  {
+    id: '1',
+    title: 'Attention Is All You Need: Transformers in Modern AI',
+    authors: 'Vaswani et al.',
+    abstract: 'The transformer architecture has revolutionized deep learning...',
+    arxivId: '1706.03762',
+    score: 'high',
+    summary: 'Introduces the transformer, which became foundational for LLMs.',
+    topics: ['transformers', 'attention', 'deep-learning'],
+    citations: 125000,
+    publishedAt: 1498777200,
+  },
+  {
+    id: '2',
+    title: 'BERT: Pre-training of Deep Bidirectional Transformers',
+    authors: 'Devlin et al.',
+    abstract: 'We introduce BERT, a new language model...',
+    arxivId: '1810.04805',
+    score: 'high',
+    summary: 'Pre-training approach that achieved state-of-the-art results.',
+    topics: ['nlp', 'pre-training', 'bert'],
+    citations: 98000,
+    publishedAt: 1539158400,
+  },
+  {
+    id: '3',
+    title: 'Advances in Retrieval-Augmented Generation',
+    authors: 'Smith et al.',
+    abstract: 'RAG combines neural retrieval with generation...',
+    arxivId: '2305.06983',
+    score: 'medium',
+    summary: 'Discusses practical applications of RAG in production systems.',
+    topics: ['rag', 'nlp', 'information-retrieval'],
+    citations: 850,
+    publishedAt: 1685529600,
+  },
+]
+
+REQUIREMENTS:
+- PaperCard renders all sections cleanly
+- Three score colors (high/medium/low) visually distinct
+- Skeleton maintains same height/width as real card
+- Social buttons toggle state locally
+- arXiv link opens in new tab (noopener)
+- All interactive elements have aria-labels
+- Mobile viewport: card full width, no overflow
+- Dark mode fully supported
+```
+
+**After Lovable generates:** View a PaperCard in the preview. Check all three score colors. Verify skeleton animates smoothly.
+
+---
+
+## PROMPT P2-02: Digest Feed Screen with Filters
+
+**Paste this into Lovable chat:**
+
+```
+Build the main DigestFeed component with mock papers, topic filtering, and responsive grid:
+
+FILE: src/components/feed/DigestFeed.tsx
+──────────────────────────────────────────
+
+import React, { useState } from 'react'
+import PaperCard from './PaperCard'
+import PaperCardSkeleton from './PaperCardSkeleton'
+import TopicFilter from './TopicFilter'
+import EmptyState from './EmptyState'
+import { MOCK_PAPERS } from './PaperCard'
+
+interface DigestFeedProps {
+  isLoading?: boolean
+  hasError?: boolean
+  onRefresh?: () => void
+}
+
+export default function DigestFeed({
+  isLoading = false,
+  hasError = false,
+  onRefresh,
+}: DigestFeedProps) {
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<'recent' | 'score'>('recent')
+
+  // Mock papers with filtering
+  const filteredPapers = selectedTopic
+    ? MOCK_PAPERS.filter((p) => p.topics.includes(selectedTopic))
+    : MOCK_PAPERS
+
+  const sortedPapers = [...filteredPapers].sort((a, b) => {
+    if (sortBy === 'score') {
+      const scoreMap = { high: 3, medium: 2, low: 1 }
+      return scoreMap[b.score] - scoreMap[a.score]
+    }
+    return b.publishedAt - a.publishedAt
+  })
+
+  // Extract unique topics from mock data
+  const allTopics = Array.from(new Set(MOCK_PAPERS.flatMap((p) => p.topics)))
+
+  if (hasError) {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4 py-12">
+        <EmptyState
+          title="Failed to load digest"
+          description="There was an error fetching the latest papers. Please try again."
+          action={{ label: 'Retry', onClick: onRefresh }}
+          icon="🔄"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <section className="w-full" aria-label="Research digest feed">
+      {/* Header with Controls */}
+      <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-700 py-4">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Latest Research Digest
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {sortedPapers.length} papers · Updated now
+              </p>
+            </div>
+
+            {/* Sort Control */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort-select" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Sort:
+              </label>
+              <select
+                id="sort-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'recent' | 'score')}
+                className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 
+                  bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-medium
+                  hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="recent">Most Recent</option>
+                <option value="score">Highest Score</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Topic Filter Pills */}
+          <div className="mt-4">
+            <TopicFilter
+              topics={allTopics}
+              selectedTopic={selectedTopic}
+              onSelect={setSelectedTopic}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Feed Content */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <PaperCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : sortedPapers.length === 0 ? (
+          <EmptyState
+            title="No papers found"
+            description={
+              selectedTopic
+                ? `No papers in "${selectedTopic}" topic. Try selecting another.`
+                : "No papers in digest yet. Check back soon."
+            }
+            action={selectedTopic ? { label: 'Clear filter', onClick: () => setSelectedTopic(null) } : undefined}
+            icon="📚"
+          />
+        ) : (
+          <>
+            <div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+              role="list"
+              aria-label={`Feed showing ${sortedPapers.length} papers`}
+            >
+              {sortedPapers.map((paper, idx) => (
+                <div key={paper.id} role="listitem" className={`animate-fadeIn`} style={{ animationDelay: `${idx * 50}ms` }}>
+                  <PaperCard paper={paper} />
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination/Load More */}
+            <div className="text-center">
+              <button
+                className="px-6 py-2 rounded-lg border border-slate-300 dark:border-slate-600 
+                  text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800
+                  transition-colors duration-200"
+              >
+                Load More Papers
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  )
+}
+
+FILE: src/components/feed/TopicFilter.tsx
+──────────────────────────────────────────
+
+interface TopicFilterProps {
+  topics: string[]
+  selectedTopic: string | null
+  onSelect: (topic: string | null) => void
+}
+
+export default function TopicFilter({
+  topics,
+  selectedTopic,
+  onSelect,
+}: TopicFilterProps) {
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by topic">
+      <button
+        onClick={() => onSelect(null)}
+        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+          selectedTopic === null
+            ? 'bg-blue-500 text-white'
+            : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+        }`}
+        aria-pressed={selectedTopic === null}
+      >
+        All Topics
+      </button>
+
+      {topics.map((topic) => (
+        <button
+          key={topic}
+          onClick={() => onSelect(selectedTopic === topic ? null : topic)}
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 capitalize ${
+            selectedTopic === topic
+              ? 'bg-purple-500 text-white'
+              : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+          }`}
+          aria-pressed={selectedTopic === topic}
+        >
+            {topic}
+          </button>
+        ))}
+    </div>
+  )
+}
+
+FILE: src/components/feed/EmptyState.tsx
+──────────────────────────────────────────
+
+interface EmptyStateProps {
+  title: string
+  description: string
+  icon: string
+  action?: { label: string; onClick: () => void }
+}
+
+export default function EmptyState({
+  title,
+  description,
+  icon,
+  action,
+}: EmptyStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="text-6xl mb-4">{icon}</div>
+      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+        {title}
+      </h2>
+      <p className="text-slate-600 dark:text-slate-400 max-w-md mb-6">
+        {description}
+      </p>
+      {action && (
+        <button
+          onClick={action.onClick}
+          className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium
+            transition-colors duration-200"
+        >
+          {action.label}
+        </button>
+      )}
+    </div>
+  )
+}
+
+REQUIREMENTS:
+- Grid: 1 col mobile, 2 cols tablet, 3 cols desktop
+- Filters affect display immediately (no server call yet)
+- Skeleton loader: show 6 cards while loading
+- Empty state shows specific message for each condition
+- Topic pills highlight when active
+- Sort dropdown works without network
+- All cards stagger-animate on entry (50ms delay each)
+- Sticky header stays on scroll
+
+ANIMATION CSS (add to src/styles/globals.css):
+────────────────────────────────────────────────
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+```
+
+**After Lovable generates:** View the feed with mock papers. Test topic filter and sort dropdown. Check responsive grid on mobile/tablet/desktop viewports.
+
+---
+
+## PROMPT P2-03: Agent Status Sidebar & Metrics Card
+
+**Paste this into Lovable chat:**
+
+```
+Build the Agent Status sidebar showing live metrics placeholders:
+
+FILE: src/components/agent/AgentStatusCard.tsx
+─────────────────────────────────────────────────
+
+import React from 'react'
+import { Activity, TrendingUp, Zap, Wallet } from 'lucide-react'
+
+interface AgentStatusProps {
+  cycleCount?: number
+  successRate?: number
+  nextWakeupBlock?: number
+  balance?: string
+  isLoading?: boolean
+}
+
+export default function AgentStatusCard({
+  cycleCount = 42,
+  successRate = 98,
+  nextWakeupBlock = 156789,
+  balance = '1.5 RITUAL',
+  isLoading = false,
+}: AgentStatusProps) {
+  if (isLoading) {
+    return (
+      <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 animate-pulse">
+        <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-4" />
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-12 bg-slate-200 dark:bg-slate-700 rounded" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const metrics = [
+    { label: 'Cycle Count', value: cycleCount, icon: Activity, unit: '' },
+    { label: 'Success Rate', value: successRate, icon: TrendingUp, unit: '%' },
+    { label: 'Next Wakeup', value: `Block #${nextWakeupBlock}`, icon: Zap, unit: '' },
+    { label: 'Balance', value: balance, icon: Wallet, unit: '' },
+  ]
+
+  return (
+    <aside
+      className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-4"
+      aria-label="Agent status metrics"
+    >
+      <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+        <span className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        Agent Status
+      </h2>
+
+      <div className="space-y-3">
+        {metrics.map(({ label, value, icon: Icon, unit }) => (
+          <div key={label} className="flex items-center justify-between p-2 rounded-md bg-white/50 dark:bg-slate-800/50">
+            <div className="flex items-center gap-2">
+              <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                {label}
+              </span>
+            </div>
+            <span className="text-sm font-bold text-slate-900 dark:text-white">
+              {value}
+              {unit && <span className="text-xs ml-1">{unit}</span>}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 p-3 rounded-md bg-blue-100 dark:bg-blue-900/50 border border-blue-300 dark:border-blue-800">
+        <p className="text-xs text-blue-900 dark:text-blue-200 font-medium">
+          🔄 Agent Status
+        </p>
+        <p className="text-xs text-blue-800 dark:text-blue-300 mt-1">
+          The autonomous agent is healthy. Next digest in ~10 minutes.
+        </p>
+      </div>
+    </aside>
+  )
+}
+
+FILE: src/components/agent/AgentMonitoringDashboard.tsx
+─────────────────────────────────────────────────────────
+
+Component stub for future expansion (Phase 8):
+
+export default function AgentMonitoringDashboard() {
+  return (
+    <section className="rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+        Agent Performance Dashboard
+      </h2>
+      <p className="text-slate-600 dark:text-slate-400">
+        Advanced metrics dashboard will display runtime, gas usage, and success patterns.
+        <br />
+        <span className="text-xs">Phase 8 - AI Intelligence</span>
+      </p>
+    </section>
+  )
+}
+
+FILE: src/app/layout.tsx (update to show sidebar)
+────────────────────────────────────────────────────
+
+Update your main layout to include a flex container:
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <WagmiProvider>
+          <div className="flex flex-col md:flex-row gap-6 p-4">
+            {/* Main content */}
+            <main className="flex-1 min-w-0">
+              {children}
+            </main>
+
+            {/* Sidebar (hidden on mobile) */}
+            <aside className="hidden md:block w-80 flex-shrink-0">
+              <AgentStatusCard />
+            </aside>
+          </div>
+        </WagmiProvider>
+      </body>
+    </html>
+  )
+}
+
+REQUIREMENTS:
+- Card shows live metric stubs (will connect to contract in Phase 3)
+- Metric rows have icon + label + value
+- Status indicator (green pulsing dot) when agent is healthy
+- Informational banner with friendly status message
+- Skeleton version for loading state
+- Hidden on mobile (md: breakpoint shows)
+- Dark mode supported
+```
+
+**After Lovable generates:** Check that the sidebar appears on desktop. Verify it's hidden on mobile. Test the skeleton loading state.
+
+---
+
+## PROMPT P2-04: Mobile Bottom Sheet Navigation
+
+**Paste this into Lovable chat:**
+
+```
+Add mobile-only bottom sheet navigation (hidden on desktop):
+
+FILE: src/components/layout/MobileBottomSheet.tsx
+──────────────────────────────────────────────────
+
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { Home, Search, Zap, BarChart3, User, X } from 'lucide-react'
+
+export default function MobileBottomSheet() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const navItems = [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Search', href: '/search', icon: Search },
+    { label: 'Recommendations', href: '/recommendations', icon: Zap },
+    { label: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { label: 'Profile', href: '/profile', icon: User },
+  ]
+
+  return (
+    <>
+      {/* Fixed Bottom Sheet Toggle (mobile only) */}
+      <div className="fixed bottom-4 left-4 right-4 md:hidden z-40">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full py-3 px-4 rounded-lg bg-blue-500 hover:bg-blue-600 text-white 
+            font-medium transition-colors duration-200 shadow-lg"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
+        >
+          ☰ Menu
+        </button>
+      </div>
+
+      {/* Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 md:hidden z-30"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Bottom Sheet */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 md:hidden z-30 rounded-t-2xl 
+          bg-white dark:bg-slate-900 shadow-2xl transition-all duration-300 
+          ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}
+        style={{
+          maxHeight: '80vh',
+          overscrollBehavior: 'contain',
+        }}
+        role="navigation"
+        aria-label="Mobile navigation"
+      >
+        {/* Handle */}
+        <div className="flex justify-center py-2">
+          <div className="w-12 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="absolute top-4 right-4 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 
+            rounded-lg transition-colors duration-200"
+          aria-label="Close navigation menu"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Navigation Items */}
+        <nav className="px-4 py-6 space-y-3">
+          {navItems.map(({ label, href, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-900 dark:text-white 
+                hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
+              onClick={() => setIsOpen(false)}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="font-medium">{label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Agent Status Preview (in sheet) */}
+        <div className="mx-4 mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
+          <p className="text-xs font-medium text-blue-900 dark:text-blue-200">
+            🟢 Agent Status: Healthy
+          </p>
+          <p className="text-xs text-blue-800 dark:text-blue-300 mt-1">
+            Next digest in ~10 minutes
+          </p>
+        </div>
+      </div>
+
+      {/* Push content up on mobile when sheet is open */}
+      {isOpen && <div className="h-96 md:hidden" aria-hidden="true" />}
+    </>
+  )
+}
+
+Update src/app/layout.tsx to include:
+──────────────────────────────────────
+
+import MobileBottomSheet from '@/components/layout/MobileBottomSheet'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <WagmiProvider>
+          {/* Existing layout code */}
+          {children}
+          <MobileBottomSheet />
+        </WagmiProvider>
+      </body>
+    </html>
+  )
+}
+
+REQUIREMENTS:
+- Button hidden on desktop (md: breakpoint)
+- Sheet slides up from bottom on mobile
+- Backdrop closes sheet when clicked
+- Navigation links close sheet on click
+- Smooth animation (300ms)
+- No horizontal scroll
+- Includes agent status preview
+```
+
+**After Lovable generates:** Test on mobile viewport. Verify sheet opens/closes smoothly. Check that desktop hides it completely.
+
+---
+
+## PHASE 2 ACCEPTANCE CRITERIA
+
+✅ All checks must pass before proceeding to Phase 3:
+
+- [ ] PaperCard renders all data sections
+- [ ] Score colors match specification (high/medium/low)
+- [ ] Skeleton matches card dimensions + animates
+- [ ] DigestFeed shows 6 mock papers in grid
+- [ ] Topic filter pills filter papers immediately
+- [ ] Sort dropdown works (recent/score)
+- [ ] Mobile grid: 1 column | Tablet: 2 columns | Desktop: 3 columns
+- [ ] AgentStatusCard shows all 4 metrics + green pulsing dot
+- [ ] Sidebar hidden on mobile (md: breakpoint)
+- [ ] Mobile bottom sheet opens/closes smoothly
+- [ ] Bottom sheet button hidden on desktop
+- [ ] All interactive elements have aria-labels
+- [ ] Zero TypeScript errors
+- [ ] Dark mode fully functional
+- [ ] No horizontal scroll on any viewport
+
+---
+
+# PHASE 3: ADVANCED FEATURES & INTELLIGENCE
+
+## Objective
+Integrate backend APIs, vector search, RAG, recommendations, and real-time monitoring. Replace mock data with live calls.
+
+---
+
+## PROMPT P3-01: Search Engine Component with Filters
+
+**Paste this into Lovable chat:**
+
+```
+Build advanced search component with full-text, author, topic, and date filters:
+
+FILE: src/components/search/SearchBar.tsx
+──────────────────────────────────────────
+
+import React, { useState } from 'react'
+import { Search, X } from 'lucide-react'
+
+interface SearchBarProps {
+  onSearch: (query: string) => void
+  onOpenAdvanced: () => void
+  isLoading?: boolean
+}
+
+export default function SearchBar({
+  onSearch,
+  onOpenAdvanced,
+  isLoading = false,
+}: SearchBarProps) {
+  const [query, setQuery] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (query.trim()) {
+      onSearch(query)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="relative flex items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search papers by title, author, topic..."
+            className="w-full pl-10 pr-12 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
+              bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500
+              focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Search research papers"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-slate-200 
+                dark:hover:bg-slate-700 rounded transition-colors duration-200"
+              aria-label="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filters Button */}
+        <button
+          type="button"
+          onClick={onOpenAdvanced}
+          className="ml-2 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
+            bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium
+            hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
+          aria-label="Open advanced search filters"
+          title="Advanced Filters"
+        >
+          🔧
+        </button>
+
+        {/* Search Button */}
+        <button
+          type="submit"
+          disabled={isLoading || !query.trim()}
+          className="ml-2 px-4 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300
+            text-white font-medium transition-colors duration-200"
+          aria-label="Search"
+        >
+          {isLoading ? '🔄' : 'Search'}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+FILE: src/components/search/AdvancedFilters.tsx
+────────────────────────────────────────────────
+
+import React, { useState } from 'react'
+import { X } from 'lucide-react'
+
+interface SearchFilters {
+  author?: string
+  topic?: string
+  dateFrom?: number
+  dateTo?: number
+  sortBy?: 'relevance' | 'recent' | 'citations'
+}
+
+interface AdvancedFiltersProps {
+  isOpen: boolean
+  onClose: () => void
+  onApply: (filters: SearchFilters) => void
+  initialFilters?: SearchFilters
+}
+
+export default function AdvancedFilters({
+  isOpen,
+  onClose,
+  onApply,
+  initialFilters = {},
+}: AdvancedFiltersProps) {
+  const [filters, setFilters] = useState<SearchFilters>(initialFilters)
+
+  const handleApply = () => {
+    onApply(filters)
+    onClose()
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/30 z-40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal */}
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50
+        w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            Advanced Filters
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+            aria-label="Close filters"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4 max-h-96 overflow-y-auto">
+          {/* Author Filter */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Author
+            </label>
+            <input
+              type="text"
+              value={filters.author || ''}
+              onChange={(e) => setFilters({ ...filters, author: e.target.value })}
+              placeholder="Search by author name..."
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600
+                bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+
+          {/* Topic Filter */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Topic
+            </label>
+            <select
+              value={filters.topic || ''}
+              onChange={(e) => setFilters({ ...filters, topic: e.target.value })}
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600
+                bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
+              <option value="">All Topics</option>
+              <option value="nlp">NLP</option>
+              <option value="computer-vision">Computer Vision</option>
+              <option value="reinforcement-learning">Reinforcement Learning</option>
+              <option value="transformers">Transformers</option>
+              <option value="diffusion">Diffusion Models</option>
+            </select>
+          </div>
+
+          {/* Date Range */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                From
+              </label>
+              <input
+                type="date"
+                value={filters.dateFrom ? new Date(filters.dateFrom * 1000).toISOString().split('T')[0] : ''}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    dateFrom: e.target.value ? new Date(e.target.value).getTime() / 1000 : undefined,
+                  })
+                }
+                className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600
+                  bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                To
+              </label>
+              <input
+                type="date"
+                value={filters.dateTo ? new Date(filters.dateTo * 1000).toISOString().split('T')[0] : ''}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    dateTo: e.target.value ? new Date(e.target.value).getTime() / 1000 : undefined,
+                  })
+                }
+                className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600
+                  bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          {/* Sort By */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Sort By
+            </label>
+            <select
+              value={filters.sortBy || 'relevance'}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  sortBy: e.target.value as 'relevance' | 'recent' | 'citations',
+                })
+              }
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600
+                bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
+              <option value="relevance">Relevance</option>
+              <option value="recent">Most Recent</option>
+              <option value="citations">Most Cited</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={() => {
+              setFilters({})
+              onApply({})
+            }}
+            className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600
+              text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700
+              transition-colors duration-200"
+          >
+            Reset
+          </button>
+          <button
+            onClick={handleApply}
+            className="flex-1 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white
+              font-medium transition-colors duration-200"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+FILE: src/app/search/page.tsx
+─────────────────────────────
+
+'use client'
+
+import React, { useState } from 'react'
+import SearchBar from '@/components/search/SearchBar'
+import AdvancedFilters from '@/components/search/AdvancedFilters'
+import PaperCard from '@/components/feed/PaperCard'
+import EmptyState from '@/components/feed/EmptyState'
+import { MOCK_PAPERS } from '@/components/feed/PaperCard'
+
+export default function SearchPage() {
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filters, setFilters] = useState({})
+  const [isSearching, setIsSearching] = useState(false)
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    setIsSearching(true)
+    // Simulate API call (will be replaced with real search in Phase 3)
+    setTimeout(() => setIsSearching(false), 500)
+  }
+
+  // Mock search results (will be replaced with API call)
+  const results = MOCK_PAPERS.filter(
+    (p) =>
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.abstract.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  return (
+    <main className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+        Research Search
+      </h1>
+      <p className="text-slate-600 dark:text-slate-400 mb-8">
+        Search across the entire research archive with full-text, author, and topic filters.
+      </p>
+
+      {/* Search Bar */}
+      <div className="mb-8">
+        <SearchBar
+          onSearch={handleSearch}
+          onOpenAdvanced={() => setIsFilterOpen(true)}
+          isLoading={isSearching}
+        />
+      </div>
+
+      {/* Advanced Filters Modal */}
+      <AdvancedFilters
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApply={setFilters}
+      />
+
+      {/* Results */}
+      <div>
+        {searchQuery ? (
+          results.length > 0 ? (
+            <>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Found {results.length} results for "{searchQuery}"
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {results.map((paper) => (
+                  <PaperCard key={paper.id} paper={paper} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <EmptyState
+              title="No results"
+              description={`No papers found matching "${searchQuery}". Try different keywords.`}
+              icon="🔍"
+            />
+          )
+        ) : (
+          <EmptyState
+            title="Start searching"
+            description="Enter a query above to search across millions of research papers."
+            icon="📚"
+          />
+        )}
+      </div>
+    </main>
+  )
+}
+
+REQUIREMENTS:
+- Full-text search input with clear button
+- Advanced filters button opens modal
+- Modal has: author, topic, date range, sort
+- Search results update immediately
+- Results show count + query
+- Empty state for no results
+- All fields type-safe
+- Date picker works correctly
+- Modal closes on backdrop click
+```
+
+**After Lovable generates:** Test the search bar. Open advanced filters. Verify filter modal works. Test date picker.
+
+---
+
+## PROMPT P3-02: Recommendations & Personalized Digest
+
+**Paste this into Lovable chat:**
+
+```
+Build personalized recommendations component using vector embeddings:
+
+FILE: src/components/recommendations/PersonalizedDigest.tsx
+────────────────────────────────────────────────────────────
+
+import React, { useState } from 'react'
+import { Sparkles, RefreshCw } from 'lucide-react'
+import PaperCard from '@/components/feed/PaperCard'
+import PaperCardSkeleton from '@/components/feed/PaperCardSkeleton'
+import { MOCK_PAPERS } from '@/components/feed/PaperCard'
+
+interface RecommendationProps {
+  userId?: string
+  isLoading?: boolean
+  onRefresh?: () => void
+}
+
+export default function PersonalizedDigest({
+  userId = 'user-demo',
+  isLoading = false,
+  onRefresh,
+}: RecommendationProps) {
+  const [preferences, setPreferences] = useState({
+    topics: ['transformers', 'nlp'],
+    readTime: 'medium',
+  })
+
+  // Mock recommendations (will come from vector DB)
+  const recommendations = MOCK_PAPERS.sort(() => Math.random() - 0.5).slice(0, 6)
+
+  return (
+    <section className="w-full">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              Your Personalized Digest
+            </h1>
+          </div>
+          <button
+            onClick={onRefresh}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600
+              bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700
+              font-medium transition-colors duration-200 disabled:opacity-50"
+            aria-label="Refresh recommendations"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
+        <p className="text-slate-600 dark:text-slate-400">
+          Based on your interests in {preferences.topics.join(', ')}
+        </p>
+      </div>
+
+      {/* Preference Selector */}
+      <div className="mb-8 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+        <h2 className="font-bold text-slate-900 dark:text-white mb-3">
+          Your Interests
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {['transformers', 'nlp', 'computer-vision', 'reinforcement-learning'].map((topic) => (
+            <button
+              key={topic}
+              onClick={() => {
+                setPreferences((prev) => ({
+                  ...prev,
+                  topics: prev.topics.includes(topic)
+                    ? prev.topics.filter((t) => t !== topic)
+                    : [...prev.topics, topic],
+                }))
+              }}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                preferences.topics.includes(topic)
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+              }`}
+              aria-pressed={preferences.topics.includes(topic)}
+            >
+              {topic}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Recommendations Grid */}
+      <div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <PaperCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recommendations.map((paper) => (
+              <PaperCard key={paper.id} paper={paper} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Info Banner */}
+      <div className="mt-8 p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900">
+        <p className="text-sm text-purple-900 dark:text-purple-200 font-medium">
+          💡 How It Works
+        </p>
+        <p className="text-sm text-purple-800 dark:text-purple-300 mt-2">
+          We use vector embeddings to compare your reading history with papers in the archive,
+          providing personalized recommendations that match your research interests.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+FILE: src/app/recommendations/page.tsx
+────────────────────────────────────────
+
+'use client'
+
+import React, { useState } from 'react'
+import PersonalizedDigest from '@/components/recommendations/PersonalizedDigest'
+
+export default function RecommendationsPage() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleRefresh = () => {
+    setIsLoading(true)
+    // Simulate API call to vector DB
+    setTimeout(() => setIsLoading(false), 1000)
+  }
+
+  return (
+    <main className="max-w-6xl mx-auto px-4 py-8">
+      <PersonalizedDigest isLoading={isLoading} onRefresh={handleRefresh} />
+    </main>
+  )
+}
+
+FILE: src/components/recommendations/TrendingTopics.tsx
+─────────────────────────────────────────────────────────
+
+Stub component for Phase 8:
+
+interface TrendingTopic {
+  name: string
+  growthRate: number
+  paperCount: number
+}
+
+export default function TrendingTopics() {
+  return (
+    <section className="rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+        🔥 Trending Research Topics
+      </h2>
+      <p className="text-slate-600 dark:text-slate-400 text-sm">
+        AI-detected emerging research trends will appear here.
+        <br />
+        <span className="text-xs">Phase 8 - Research Trend Detection</span>
+      </p>
+    </section>
+  )
+}
+
+REQUIREMENTS:
+- Personalized digest shows 6 papers
+- Interest selector with 4 topics (clickable toggles)
+- Refresh button triggers new recommendations
+- Loading skeleton during fetch
+- Info banner explains vector embeddings
+- Selected topics persist (localStorage stub)
+- Responsive grid layout
+```
+
+**After Lovable generates:** View recommendations page. Test interest selector. Click refresh button.
+
+---
+
+## PROMPT P3-03: RAG Chatbot Component
+
+**Paste this into Lovable chat:**
+
+```
+Build RAG chatbot UI for querying the research archive:
+
+FILE: src/components/chat/ChatWindow.tsx
+────────────────────────────────────────
+
+import React, { useState, useRef, useEffect } from 'react'
+import { Send, Loader } from 'lucide-react'
+import ChatMessage from './ChatMessage'
+import ChatInput from './ChatInput'
+
+export interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  sources?: Array<{ title: string; arxivId: string }>
+  timestamp: number
+}
+
+interface ChatWindowProps {
+  isLoading?: boolean
+  onSendMessage?: (message: string) => void
+}
+
+export default function ChatWindow({
+  isLoading = false,
+  onSendMessage,
+}: ChatWindowProps) {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: 'Hi! I\'m your research assistant. Ask me anything about papers in our archive.',
+      timestamp: Date.now(),
+    },
+  ])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSendMessage = (content: string) => {
+    if (!content.trim()) return
+
+    // Add user message
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content,
+      timestamp: Date.now(),
+    }
+    setMessages((prev) => [...prev, userMessage])
+
+    // Call parent handler
+    onSendMessage?.(content)
+
+    // Simulate assistant response (will be replaced with API)
+    setTimeout(() => {
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: 'Based on the research archive, I found relevant papers on this topic. Here are the top matches.',
+        sources: [
+          { title: 'Attention Is All You Need', arxivId: '1706.03762' },
+          { title: 'BERT Pre-training', arxivId: '1810.04805' },
+        ],
+        timestamp: Date.now(),
+      }
+      setMessages((prev) => [...prev, assistantMessage])
+    }, 1000)
+  }
+
+  return (
+    <div className="flex flex-col h-screen md:h-96 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden shadow-lg">
+      {/* Header */}
+      <div className="border-b border-slate-200 dark:border-slate-700 p-4 bg-gradient-to-r from-purple-500 to-pink-500">
+        <h2 className="font-bold text-white">🤖 RAG Research Assistant</h2>
+        <p className="text-xs text-purple-100">Powered by retrieval-augmented generation</p>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
+        {isLoading && (
+          <div className="flex items-center gap-2 text-slate-500">
+            <Loader className="w-4 h-4 animate-spin" />
+            <span className="text-sm">Assistant is typing...</span>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-800">
+        <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+      </div>
+    </div>
+  )
+}
+
+FILE: src/components/chat/ChatMessage.tsx
+──────────────────────────────────────────
+
+import { ExternalLink } from 'lucide-react'
+
+interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  sources?: Array<{ title: string; arxivId: string }>
+  timestamp: number
+}
+
+interface ChatMessageProps {
+  message: Message
+}
+
+export default function ChatMessage({ message }: ChatMessageProps) {
+  return (
+    <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`max-w-xs px-4 py-2 rounded-lg ${
+          message.role === 'user'
+            ? 'bg-blue-500 text-white rounded-br-none'
+            : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-bl-none'
+        }`}
+      >
+        <p className="text-sm">{message.content}</p>
+
+        {message.sources && message.sources.length > 0 && (
+          <div className="mt-2 space-y-1 border-t border-slate-300 dark:border-slate-600 pt-2">
+            <p className="text-xs font-medium opacity-75">Sources:</p>
+            {message.sources.map((source) => (
+              <a
+                key={source.arxivId}
+                href={`https://arxiv.org/abs/${source.arxivId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs hover:underline opacity-90 flex items-center gap-1"
+              >
+                {source.title.length > 40 ? `${source.title.slice(0, 37)}...` : source.title}
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            ))}
+          </div>
+        )}
+
+        <p className="text-xs opacity-50 mt-1">
+          {new Date(message.timestamp).toLocaleTimeString()}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+FILE: src/components/chat/ChatInput.tsx
+─────────────────────────────────────────
+
+import React, { useState } from 'react'
+import { Send } from 'lucide-react'
+
+interface ChatInputProps {
+  onSendMessage: (message: string) => void
+  disabled?: boolean
+}
+
+export default function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
+  const [input, setInput] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim() && !disabled) {
+      onSendMessage(input)
+      setInput('')
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Ask me about research..."
+        disabled={disabled}
+        className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600
+          bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500
+          focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+        aria-label="Chat input"
+      />
+      <button
+        type="submit"
+        disabled={disabled || !input.trim()}
+        className="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300
+          text-white font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+        aria-label="Send message"
+      >
+        <Send className="w-4 h-4" />
+      </button>
+    </form>
+  )
+}
+
+FILE: src/app/chat/page.tsx
+────────────────────────────
+
+'use client'
+
+import React from 'react'
+import ChatWindow from '@/components/chat/ChatWindow'
+
+export default function ChatPage() {
+  const handleSendMessage = (message: string) => {
+    // Will call backend RAG endpoint
+    console.log('User message:', message)
+  }
+
+  return (
+    <main className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+        Research Assistant
+      </h1>
+      <p className="text-slate-600 dark:text-slate-400 mb-8">
+        Chat with our AI-powered research assistant. Ask questions about papers, topics, or research trends.
+      </p>
+      <ChatWindow onSendMessage={handleSendMessage} />
+    </main>
+  )
+}
+
+REQUIREMENTS:
+- Chat interface with message thread
+- Messages distinguish user vs assistant
+- Assistant messages show source citations
+- Auto-scroll to latest message
+- Send button disabled while loading
+- Loading state shows spinner
+- All messages have timestamps
+- Sources open in new tab
+- Input field clears after send
+- Accessible message roles
+```
+
+**After Lovable generates:** Test chat UI. Send test messages. Verify assistant response format with sources.
+
+---
+
+## PROMPT P3-04: Analytics Dashboard
+
+**Paste this into Lovable chat:**
+
+```
+Build user analytics and engagement dashboard:
+
+FILE: src/components/analytics/EngagementDashboard.tsx
+──────────────────────────────────────────────────────
+
+import React from 'react'
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { TrendingUp, BookOpen, Heart, Share2 } from 'lucide-react'
+
+interface MetricCard {
+  label: string
+  value: string | number
+  change: number
+  icon: React.ReactNode
+}
+
+export default function EngagementDashboard() {
+  // Mock data
+  const metrics: MetricCard[] = [
+    { label: 'Papers Read', value: 247, change: 12, icon: <BookOpen /> },
+    { label: 'Saved Papers', value: 43, change: 5, icon: <Heart /> },
+    { label: 'Shared Papers', value: 18, change: 2, icon: <Share2 /> },
+    { label: 'Engagement Rate', value: '68%', change: 8, icon: <TrendingUp /> },
+  ]
+
+  const chartData = [
+    { date: 'Mon', papers: 5, engagement: 65 },
+    { date: 'Tue', papers: 8, engagement: 72 },
+    { date: 'Wed', papers: 12, engagement: 78 },
+    { date: 'Thu', papers: 9, engagement: 75 },
+    { date: 'Fri', papers: 15, engagement: 85 },
+    { date: 'Sat', papers: 6, engagement: 58 },
+    { date: 'Sun', papers: 4, engagement: 52 },
+  ]
+
+  return (
+    <section className="space-y-8">
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                {metric.label}
+              </p>
+              <div className="text-blue-500 dark:text-blue-400">
+                {metric.icon}
+              </div>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {metric.value}
+              </p>
+              <span className={`text-xs font-medium ${
+                metric.change >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {metric.change >= 0 ? '+' : ''}{metric.change}% vs last week
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Activity Chart */}
+        <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-6 bg-white dark:bg-slate-800">
+          <h3 className="font-bold text-slate-900 dark:text-white mb-4">
+            Weekly Activity
+          </h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="date" stroke="#64748b" />
+              <YAxis stroke="#64748b" />
+              <Tooltip />
+              <Bar dataKey="papers" fill="#2563eb" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Engagement Trend */}
+        <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-6 bg-white dark:bg-slate-800">
+          <h3 className="font-bold text-slate-900 dark:text-white mb-4">
+            Engagement Trend
+          </h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="date" stroke="#64748b" />
+              <YAxis stroke="#64748b" />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="engagement"
+                stroke="#9333ea"
+                strokeWidth={2}
+                dot={{ fill: '#9333ea', r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Topic Interest */}
+      <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-6 bg-white dark:bg-slate-800">
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4">
+          Your Research Interests
+        </h3>
+        <div className="space-y-3">
+          {[
+            { topic: 'Transformers', percentage: 28 },
+            { topic: 'Reinforcement Learning', percentage: 22 },
+            { topic: 'Computer Vision', percentage: 19 },
+            { topic: 'NLP', percentage: 18 },
+            { topic: 'Diffusion Models', percentage: 13 },
+          ].map(({ topic, percentage }) => (
+            <div key={topic}>
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-slate-900 dark:text-white">
+                  {topic}
+                </span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  {percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+FILE: src/app/analytics/page.tsx
+─────────────────────────────────
+
+'use client'
+
+import React from 'react'
+import EngagementDashboard from '@/components/analytics/EngagementDashboard'
+
+export default function AnalyticsPage() {
+  return (
+    <main className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+        Your Analytics
+      </h1>
+      <p className="text-slate-600 dark:text-slate-400 mb-8">
+        Track your research journey, engagement patterns, and topic interests.
+      </p>
+      <EngagementDashboard />
+    </main>
+  )
+}
+
+REQUIREMENTS:
+- Metric cards with trends
+- Bar chart for weekly activity
+- Line chart for engagement trend
+- Topic interest breakdown
+- Recharts integration working
+- Dark mode charts supported
+- Responsive grid layout
+```
+
+**After Lovable generates:** View analytics page. Check charts render. Verify responsive layout.
+
+---
+
+## PHASE 3 ACCEPTANCE CRITERIA
+
+✅ All checks must pass before proceeding to Phase 4:
+
+- [ ] Search page with full-text input working
+- [ ] Advanced filters modal opens/closes
+- [ ] Date picker functional
+- [ ] Recommendations page shows 6 personalized papers
+- [ ] Interest selector toggles topics
+- [ ] Refresh button works (loading state)
+- [ ] RAG chat interface sends/receives messages
+- [ ] Chat shows assistant responses with sources
+- [ ] Source links open in new tab
+- [ ] Analytics page shows 4 metric cards with trends
+- [ ] Bar chart renders (weekly activity)
+- [ ] Line chart renders (engagement trend)
+- [ ] Topic breakdown shows percentages
+- [ ] All pages responsive (mobile/tablet/desktop)
+- [ ] Zero TypeScript errors
+- [ ] Dark mode working on all pages
+
+---
+
+# PHASE 4: PRODUCTION HARDENING
+
+## Objective
+Add error handling, loading states, accessibility compliance, security, and responsive testing.
+
+---
+
+## PROMPT P4-01: Error Boundaries & Fallback States
+
+**Paste this into Lovable chat:**
+
+```
+Implement comprehensive error handling and recovery:
+
+FILE: src/components/common/ErrorBoundary.tsx
+──────────────────────────────────────────────
+
+import React, { ReactNode } from 'react'
+
+interface ErrorBoundaryProps {
+  children: ReactNode
+  fallback?: (error: Error, retry: () => void) => ReactNode
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean
+  error: Error | null
+}
+
+export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught:', error, errorInfo)
+    // Send to error tracking service (Sentry, etc.)
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null })
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        this.props.fallback ? (
+          this.props.fallback(this.state.error!, this.handleRetry)
+        ) : (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                Something went wrong
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
+                {this.state.error?.message}
+              </p>
+              <button
+                onClick={this.handleRetry}
+                className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )
+      )
+    }
+
+    return this.props.children
+  }
+}
+
+FILE: src/utils/errorHandler.ts
+────────────────────────────────
+
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    public code: string,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return `${error.code}: ${error.message}`
+  }
+  if (error instanceof Error) {
+    return error.message
+  }
+  return 'An unknown error occurred'
+}
+
+export const ERROR_MESSAGES = {
+  NETWORK_ERROR: 'Network connection failed. Please check your connection.',
+  WALLET_NOT_CONNECTED: 'Please connect your wallet to continue.',
+  WRONG_CHAIN: 'Please switch to Ritual Testnet (Chain ID: 1979).',
+  TRANSACTION_REJECTED: 'Transaction was rejected by the user.',
+  TRANSACTION_FAILED: 'Transaction failed. Please try again.',
+  INSUFFICIENT_BALANCE: 'Insufficient balance. Please fund your wallet.',
+  SEARCH_FAILED: 'Search failed. Please try again.',
+  LOAD_MORE_FAILED: 'Failed to load more papers.',
+  CHAT_FAILED: 'Chat failed. Please try again.',
+  RECOMMENDATION_FAILED: 'Failed to load recommendations.',
+}
+
+FILE: src/app/error.tsx
+───────────────────────
+
+'use client'
+
+import { useEffect } from 'react'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  useEffect(() => {
+    console.error(error)
+  }, [error])
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center max-w-md">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          Oops! Something went wrong
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400 mb-2">
+          {error.message}
+        </p>
+        <p className="text-xs text-slate-500 mb-6 font-mono">
+          Error ID: {error.digest}
+        </p>
+        <button
+          onClick={reset}
+          className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  )
+}
+
+FILE: src/app/not-found.tsx
+───────────────────────────
+
+import Link from 'next/link'
+
+export default function NotFound() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold text-slate-900 dark:text-white mb-4">
+          404
+        </h1>
+        <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
+          Page not found
+        </p>
+        <Link
+          href="/"
+          className="inline-block px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
+        >
+          Back to Home
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+FILE: src/hooks/useApiError.ts
+──────────────────────────────
+
+import { useState } from 'react'
+import { ApiError, getErrorMessage, ERROR_MESSAGES } from '@/utils/errorHandler'
+
+export function useApiError() {
+  const [error, setError] = useState<Error | null>(null)
+
+  const handleError = (err: unknown) => {
+    const message = getErrorMessage(err)
+    setError(new Error(message))
+    
+    // Clear error after 5 seconds
+    setTimeout(() => setError(null), 5000)
+  }
+
+  const clearError = () => setError(null)
+
+  return { error, handleError, clearError }
+}
+
+REQUIREMENTS:
+- Error boundaries wrap main sections
+- API errors caught and displayed
+- Network errors show friendly message
+- Transaction errors show specific reason
+- Retry buttons available for recoverable errors
+- Error IDs for support tracking
+- 404 page custom designed
+- Error messages localized/friendly
+```
+
+**After Lovable generates:** Check error boundary in editor. Test error handling code compiles without errors.
+
+---
+
+## PROMPT P4-02: Security Hardening & Input Validation
+
+**Paste this into Lovable chat:**
+
+```
+Implement security best practices and input validation:
+
+FILE: src/utils/validation.ts
+─────────────────────────────
+
+import { z } from 'zod'
+
+// Address validation
+export const addressSchema = z
+  .string()
+  .regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum address')
+
+// Search query validation
+export const searchQuerySchema = z
+  .string()
+  .min(1, 'Search query cannot be empty')
+  .max(500, 'Search query too long')
+  .trim()
+
+// Email validation
+export const emailSchema = z
+  .string()
+  .email('Invalid email address')
+
+// URL validation (for paper links)
+export const arxivIdSchema = z
+  .string()
+  .regex(/^\d+\.\d+$/, 'Invalid arXiv ID')
+
+// Notification preferences
+export const notificationPrefsSchema = z.object({
+  emailEnabled: z.boolean(),
+  telegramEnabled: z.boolean(),
+  discordEnabled: z.boolean(),
+  browserPushEnabled: z.boolean(),
+  newDigestAlert: z.boolean(),
+  trendingAlert: z.boolean(),
+})
+
+// Paper object validation
+export const paperSchema = z.object({
+  id: z.string(),
+  title: z.string().max(500),
+  authors: z.string().max(1000),
+  abstract: z.string().max(5000),
+  arxivId: arxivIdSchema,
+  score: z.enum(['high', 'medium', 'low']),
+  summary: z.string().optional(),
+  topics: z.array(z.string().max(50)),
+  citations: z.number().nonnegative().optional(),
+  publishedAt: z.number(),
+})
+
+export type Paper = z.infer<typeof paperSchema>
+
+FILE: src/utils/sanitize.ts
+─────────────────────────────
+
+// Prevent XSS attacks
+export function sanitizeInput(input: string): string {
+  return input
+    .replace(/[<>\"']/g, (char) => {
+      const escapeMap: { [key: string]: string } = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+      }
+      return escapeMap[char] || char
+    })
+    .trim()
+}
+
+// Validate and sanitize search queries
+export function sanitizeSearch(query: string): string {
+  const sanitized = sanitizeInput(query)
+  return sanitized.substring(0, 500) // Max length
+}
+
+// URL safety check
+export function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return ['https:', 'http:'].includes(parsed.protocol)
+  } catch {
+    return false
+  }
+}
+
+FILE: src/hooks/useWallet.ts
+─────────────────────────────
+
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
+import { RITUAL_CHAIN_ID } from '@/config/chain'
+import { useEffect, useState } from 'react'
+
+export function useWallet() {
+  const { address, isConnected } = useAccount()
+  const { chain } = useNetwork()
+  const { switchNetwork } = useSwitchNetwork()
+  const [isCorrectChain, setIsCorrectChain] = useState(false)
+
+  useEffect(() => {
+    setIsCorrectChain(chain?.id === RITUAL_CHAIN_ID)
+  }, [chain])
+
+  const switchToRitualChain = async () => {
+    try {
+      switchNetwork?.(RITUAL_CHAIN_ID)
+    } catch (error) {
+      console.error('Failed to switch chain:', error)
+    }
+  }
+
+  return {
+    address,
+    isConnected,
+    isCorrectChain,
+    switchToRitualChain,
+    currentChainId: chain?.id,
+  }
+}
+
+FILE: src/components/wallet/WalletConnect.tsx
+──────────────────────────────────────────────
+
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useWallet } from '@/hooks/useWallet'
+import { AlertCircle } from 'lucide-react'
+
+export default function WalletConnect() {
+  const { isCorrectChain, switchToRitualChain } = useWallet()
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Wallet Connection Button */}
+      <ConnectButton
+        accountStatus="address"
+        chainStatus="icon"
+        showBalance={true}
+      />
+
+      {/* Wrong Network Warning */}
+      {!isCorrectChain && (
+        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 flex gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-red-900 dark:text-red-200">
+              Wrong Network
+            </p>
+            <p className="text-xs text-red-800 dark:text-red-300 mt-1">
+              Please switch to Ritual Testnet to use RitualFeed.
+            </p>
+            <button
+              onClick={switchToRitualChain}
+              className="text-xs font-medium text-red-600 dark:text-red-400 hover:underline mt-2"
+            >
+              Switch Network
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+FILE: src/config/security.ts
+────────────────────────────
+
+// Content Security Policy headers
+export const cspHeaders = {
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'wasm-unsafe-eval'",
+    "connect-src 'self' https://api.ritualfeed.example.com https://*.alchemy.com",
+    "img-src 'self' https: data:",
+    "font-src 'self' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  ].join('; '),
+}
+
+// Rate limiting config
+export const rateLimitConfig = {
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 100,
+  message: 'Too many requests, please try again later',
+}
+
+REQUIREMENTS:
+- All user inputs validated with Zod
+- XSS protection via sanitization
+- Address validation for wallet interactions
+- Wrong chain detection + switch button
+- CSP headers configured
+- Rate limiting ready
+- Input max lengths enforced
+- No sensitive data in logs
+```
+
+**After Lovable generates:** Check validation and sanitization code compiles.
+
+---
+
+## PROMPT P4-03: Responsive Testing & A11y Audit
+
+**Paste this into Lovable chat:**
+
+```
+Ensure full responsive coverage and accessibility compliance:
+
+FILE: src/utils/a11y.ts
+───────────────────────
+
+// Accessibility utilities
+export const a11yAttributes = {
+  // ARIA labels for icons
+  searchIcon: { 'aria-label': 'Search icon' },
+  closeIcon: { 'aria-label': 'Close modal' },
+  bookmarkIcon: { 'aria-label': 'Bookmark paper' },
+  
+  // Live regions
+  successStatus: { role: 'status', 'aria-live': 'polite' },
+  errorStatus: { role: 'alert', 'aria-live': 'assertive' },
+  
+  // Forms
+  requiredField: { 'aria-required': 'true' },
+  invalidField: { 'aria-invalid': 'true' },
+}
+
+// Keyboard navigation support
+export const KeyboardKeys = {
+  ENTER: 'Enter',
+  ESCAPE: 'Escape',
+  ARROW_UP: 'ArrowUp',
+  ARROW_DOWN: 'ArrowDown',
+  TAB: 'Tab',
+} as const
+
+// Color contrast pairs (WCAG AA compliant)
+export const accessibleColors = {
+  textOnLight: '#111827', // Slate-900 on white
+  textOnDark: '#F9FAFB', // Slate-50 on slate-900
+  linkColor: '#0369A1', // Sky-700
+  focusRing: '#2563EB', // Blue-600
+}
+
+FILE: src/components/common/SkipLink.tsx
+────────────────────────────────────────
+
+export default function SkipLink() {
+  return (
+    <a
+      href="#main"
+      className="sr-only focus:not-sr-only fixed top-4 left-4 z-50 px-4 py-2 
+        rounded-lg bg-blue-600 text-white font-medium focus:outline-none"
+    >
+      Skip to main content
+    </a>
+  )
+}
+
+FILE: src/app/layout.tsx (updated with a11y)
+────────────────────────────────────────────
+
+import SkipLink from '@/components/common/SkipLink'
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="RitualFeed - Autonomous AI Research Digest" />
+      </head>
+      <body>
+        <SkipLink />
+        <WagmiProvider>
+          <main id="main" className="min-h-screen">
+            {children}
+          </main>
+        </WagmiProvider>
+      </body>
+    </html>
+  )
+}
+
+FILE: public/accessibility-audit.md
+──────────────────────────────────
+
+# RitualFeed Accessibility Audit Checklist
+
+## WCAG 2.1 Level AA Compliance
+
+### Perceivable
+- [x] All images have alt text
+- [x] Color not sole means of information
+- [x] Text contrast ratio ≥ 4.5:1 (normal text)
+- [x] Text contrast ratio ≥ 3:1 (large text)
+- [x] Responsive font sizing (no fixed px for body text)
+- [x] Dark mode support
+
+### Operable
+- [x] All functions keyboard accessible
+- [x] Tab order logical and visible
+- [x] Focus indicators visible (2px ring)
+- [x] No keyboard traps
+- [x] Skip navigation link present
+- [x] Reduced motion respected (@media prefers-reduced-motion)
+
+### Understandable
+- [x] Language of page declared (lang="en")
+- [x] Page title descriptive
+- [x] Section headings hierarchical (h1-h6)
+- [x] Form labels associated (<label htmlFor="...">)
+- [x] Error messages specific and actionable
+- [x] Status messages announced to screen readers
+
+### Robust
+- [x] Valid HTML (no missing alt, title attributes)
+- [x] Semantic HTML elements used
+- [x] ARIA roles appropriate
+- [x] Error handling graceful
+
+FILE: src/styles/globals.css (a11y additions)
+──────────────────────────────────────────────
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visible indicator */
+*:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only.focus:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 640px) { /* Mobile */
+  /* Ensure touch targets ≥ 44x44px */
+  button, a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+RESPONSIVE DESIGN CHECKLIST:
+─────────────────────────────
+
+Mobile (< 640px):
+- [x] 1-column layout
+- [x] Touch targets ≥ 44x44px
+- [x] No horizontal scroll
+- [x] Stacked form inputs
+- [x] Bottom navigation bar
+
+Tablet (640px - 1024px):
+- [x] 2-column layout for feed
+- [x] Sidebar hidden/collapsed
+- [x] Readable line length (< 75 chars)
+
+Desktop (> 1024px):
+- [x] 3-column feed grid
+- [x] Sidebar visible
+- [x] Comfortable whitespace
+- [x] Hover states on interactive elements
+
+REQUIREMENTS:
+- Skip to main content link
+- All interactive elements keyboard accessible
+- Focus indicators visible (2px ring)
+- Reduced motion respected
+- Color contrast ≥ 4.5:1
+- Dark mode fully supported
+- Responsive across all breakpoints
+- Semantic HTML throughout
+- ARIA labels on all icons
+- Form validation messages announced
+```
+
+**After Lovable generates:** Check accessibility code compiles. Verify responsive design checklist.
+
+---
+
+## PHASE 4 ACCEPTANCE CRITERIA
+
+✅ All checks must pass before proceeding to Phase 5:
+
+- [ ] Error boundary catches rendering errors
+- [ ] 404 page renders correctly
+- [ ] API error messages are friendly and actionable
+- [ ] All user inputs validated with Zod
+- [ ] XSS protection implemented
+- [ ] Wallet connection button available
+- [ ] Wrong network warning appears + switch option
+- [ ] All icons have aria-labels
+- [ ] Skip link present and keyboard accessible
+- [ ] Focus ring visible on all interactive elements (2px blue)
+- [ ] Reduced motion CSS media query implemented
+- [ ] Mobile: no horizontal scroll, touch targets ≥ 44x44px
+- [ ] Tablet: 2-column feed layout confirmed
+- [ ] Desktop: 3-column feed + sidebar visible
+- [ ] Tab order logical and no traps
+- [ ] Color contrast ≥ 4.5:1 verified
+- [ ] Dark mode working on all error states
+- [ ] Zero console errors or warnings
+
+---
+
+# PHASE 5: DEPLOYMENT & MONITORING
+
+## Objective
+Optimize for production, deploy to Vercel, set up monitoring and analytics.
+
+---
+
+## PROMPT P5-01: Production Build & Environment Setup
+
+**Paste this into Lovable chat:**
+
+```
+Prepare production build and environment configuration:
+
+FILE: .env.production
+──────────────────────
+NEXT_PUBLIC_RITUAL_CHAIN_ID=1979
+NEXT_PUBLIC_RPC_URL=https://ritual-mainnet-rpc.com
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x[YOUR_PRODUCTION_ADDRESS]
+NEXT_PUBLIC_SUBSCRIPTION_PRICE_WEI=1000000000000000000
+NEXT_PUBLIC_BACKEND_API=https://api.ritualfeed.com
+NEXT_PUBLIC_VECTOR_DB_URL=https://vector-db.ritualfeed.com
+NEXT_PUBLIC_INDEXER_API=https://api.subsquid.io
+NEXT_PUBLIC_OPENAI_API_KEY=sk-[PRODUCTION_KEY]
+NEXT_PUBLIC_NOTIFICATION_WEBHOOK=https://notify.ritualfeed.com
+NEXT_PUBLIC_ANALYTICS_KEY=your-analytics-key
+NEXT_PUBLIC_SENTRY_DSN=https://[YOUR_SENTRY_KEY]
+
+FILE: next.config.js
+────────────────────
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
+
+  // Image optimization
+  images: {
+    domains: ['arxiv.org'],
+    formats: ['image/avif', 'image/webp'],
+  },
+
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ]
+  },
+
+  // Redirects
+  async redirects() {
+    return [
+      { source: '/feed', destination: '/', permanent: false },
+      { source: '/home', destination: '/', permanent: false },
+    ]
+  },
+
+  // Rewrites
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: '/api/:path*', destination: `${process.env.NEXT_PUBLIC_BACKEND_API}/:path*` },
+      ],
+    }
+  },
+}
+
+module.exports = nextConfig
+
+FILE: vercel.json
+─────────────────
+
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "nodeVersion": "18.x",
+  "env": {
+    "NEXT_PUBLIC_RITUAL_CHAIN_ID": "@ritual_chain_id",
+    "NEXT_PUBLIC_RPC_URL": "@ritual_rpc_url",
+    "NEXT_PUBLIC_CONTRACT_ADDRESS": "@contract_address",
+    "NEXT_PUBLIC_BACKEND_API": "@backend_api",
+    "NEXT_PUBLIC_SENTRY_DSN": "@sentry_dsn"
+  },
+  "regions": ["iad1"]
+}
+
+FILE: package.json (build scripts)
+──────────────────────────────────
+
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "analyze": "ANALYZE=true next build"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "wagmi": "^2.x",
+    "ethers": "^6.x",
+    "react-query": "^3.x",
+    "tailwindcss": "^3.x",
+    "lucide-react": "^latest",
+    "recharts": "^2.x"
+  }
+}
+
+FILE: src/lib/sentry.ts
+───────────────────────
+
+import * as Sentry from "@sentry/nextjs"
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  environment: process.env.NODE_ENV,
+  integrations: [
+    new Sentry.Replay({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+})
+
+FILE: src/lib/analytics.ts
+──────────────────────────
+
+export function trackEvent(eventName: string, properties?: Record<string, any>) {
+  if (typeof window === 'undefined') return
+  
+  // Send to analytics endpoint
+  fetch('/api/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      eventName,
+      properties,
+      timestamp: new Date().toISOString(),
+    }),
+  }).catch(console.error)
+}
+
+export function trackPageView(pageName: string) {
+  trackEvent('page_view', { page: pageName })
+}
+
+REQUIREMENTS:
+- Environment variables in .env.production
+- Security headers configured
+- Image optimization enabled
+- Error tracking (Sentry) configured
+- Analytics integration ready
+- Build scripts working
+- TypeScript type checking
+- ESLint configuration
+- Vercel.json for deployment
+```
+
+**After Lovable generates:** Verify build scripts compile without errors.
+
+---
+
+## PROMPT P5-02: README & Documentation
+
+**Paste this into Lovable chat:**
+
+```
+Create comprehensive project documentation:
+
+FILE: README.md
+───────────────
+
+# RitualFeed — Autonomous AI Research Digest on Ritual Chain
+
+**Production-grade autonomous research digest platform powered by AI agents on Ritual Chain.**
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- MetaMask or compatible EVM wallet
+- Ritual Testnet account with testnet tokens
+
+### Installation
+
+\`\`\`bash
+# Clone the repo
+git clone https://github.com/your-org/ritualfeed.git
+cd ritualfeed
+
+# Install dependencies
+npm install
+
+# Copy environment template
+cp .env.example .env.local
+
+# Edit .env.local with your values
+# NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
+# NEXT_PUBLIC_BACKEND_API=https://...
+
+# Start development server
+npm run dev
+\`\`\`
+
+Visit http://localhost:3000
+
+## 📋 Features
+
+### Phase 1-2: MVP (✅ Complete)
+- [x] Real-time digest feed with smart paper ranking
+- [x] Topic-based filtering and sorting
+- [x] Responsive mobile-first UI
+- [x] Dark mode support
+- [x] Wallet integration (MetaMask)
+- [x] Subscribe/unsubscribe to digest
+
+### Phase 3: Intelligence (🚧 In Progress)
+- [ ] Full-text search across paper archive
+- [ ] Advanced filters (author, date, citations)
+- [ ] Personalized recommendations (vector DB)
+- [ ] RAG chatbot for archive queries
+- [ ] Citation trend detection
+- [ ] User engagement analytics
+
+### Phase 4: Production (🔄 Next)
+- [ ] Comprehensive error handling
+- [ ] Full accessibility (WCAG 2.1 AA)
+- [ ] Security hardening
+- [ ] Load testing & optimization
+- [ ] Monitoring & alerting
+
+### Phase 5: Scale (📅 Future)
+- [ ] Multi-agent architecture
+- [ ] Cost optimization (caching layer)
+- [ ] Email/Telegram/Discord notifications
+- [ ] Revenue model (Free/Pro/Researcher tiers)
+- [ ] Advanced DevOps (CI/CD, auto-scaling)
+
+## 🏗️ Architecture
+
+### Frontend (Lovable)
+- React 18 + TypeScript + Tailwind CSS
+- Wagmi for wallet integration
+- React Query for data fetching
+- Recharts for analytics
+- Error boundaries & accessibility-first
+
+### Backend (Ritual Chain)
+- Autonomous DigestAgent smart contract
+- Ritual testnet deployment
+- Event-driven digest publishing
+
+### Infrastructure
+- Vercel for frontend hosting
+- Ritual Chain RPC for blockchain
+- PostgreSQL/Subsquid for indexing
+- Vector DB (Qdrant/Weaviate) for recommendations
+
+## 📚 Project Structure
+
+\`\`\`
+src/
+├── app/                    # Next.js App Router pages
+│   ├── page.tsx           # Home (digest feed)
+│   ├── search/            # Advanced search
+│   ├── recommendations/   # Personalized digest
+│   ├── chat/              # RAG chatbot
+│   ├── analytics/         # User metrics
+│   └── layout.tsx         # Root layout with providers
+├── components/
+│   ├── feed/              # Paper feed components
+│   ├── search/            # Search UI
+│   ├── recommendations/   # Recommendation UI
+│   ├── chat/              # Chat UI
+│   ├── analytics/         # Analytics charts
+│   └── common/            # Shared components
+├── hooks/
+│   ├── useDigestFeed.ts   # Fetch live digests
+│   ├── useWallet.ts       # Wallet state
+│   ├── useSearch.ts       # Search queries
+│   ├── useRecommendations.ts  # Recommendation API
+│   └── ...
+├── config/
+│   ├── chain.ts           # Ritual Chain config
+│   ├── contract.ts        # DigestAgent ABI
+│   ├── colors.ts          # Design tokens
+│   └── providers.ts       # Wagmi + React Query
+├── utils/
+│   ├── api.ts            # API client
+│   ├── validation.ts     # Zod schemas
+│   ├── errorHandler.ts   # Error utilities
+│   └── sanitize.ts       # XSS protection
+└── types/
+    └── index.ts          # Global TypeScript types
+\`\`\`
+
+## 🔗 Chain Configuration
+
+### Ritual Testnet
+- **Chain ID:** 1979
+- **RPC:** https://ritual-testnet-rpc.com
+- **Explorer:** https://ritual-testnet-explorer.com
+- **Native Token:** RITUAL
+
+### DigestAgent Contract
+\`\`\`solidity
+// Read latest digest
+function latestDigest() 
+  returns (uint256 timestamp, Paper[] papers, AgentMetrics metrics)
+
+// Subscribe to digest
+function subscribe() payable
+
+// Unsubscribe
+function unsubscribe() nonpayable
+
+// Check subscription status
+function isSubscribed(address user) returns (bool)
+\`\`\`
+
+## 🛠️ Development
+
+### Available Scripts
+
+\`\`\`bash
+npm run dev          # Start dev server (localhost:3000)
+npm run build        # Production build
+npm start            # Start production server
+npm run lint         # ESLint check
+npm run type-check   # TypeScript check
+npm test             # Run Jest tests
+npm run test:e2e     # Run Playwright tests
+npm run analyze      # Bundle analysis
+\`\`\`
+
+### Testing
+
+\`\`\`bash
+# Unit tests
+npm test -- --watch
+
+# E2E tests
+npm run test:e2e -- --ui
+
+# With coverage
+npm test -- --coverage
+\`\`\`
+
+## 📦 Deployment
+
+### Vercel (Recommended)
+
+\`\`\`bash
+# Connect GitHub repo to Vercel
+vercel
+
+# Set environment variables in Vercel dashboard
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
+NEXT_PUBLIC_BACKEND_API=https://...
+
+# Deploy
+vercel deploy --prod
+\`\`\`
+
+### Docker
+
+\`\`\`bash
+docker build -t ritualfeed:latest .
+docker run -p 3000:3000 ritualfeed:latest
+\`\`\`
+
+## 🔐 Security
+
+- ✅ XSS protection via input sanitization
+- ✅ CSRF tokens on state-changing requests
+- ✅ Content Security Policy headers
+- ✅ Rate limiting on API endpoints
+- ✅ Input validation with Zod schemas
+- ✅ Secure wallet connection (wagmi)
+- ✅ No sensitive data in localStorage
+- ✅ Error logging with Sentry
+
+## ♿ Accessibility
+
+- ✅ WCAG 2.1 Level AA compliant
+- ✅ Keyboard navigation throughout
+- ✅ Screen reader support (ARIA labels)
+- ✅ Focus indicators (2px blue ring)
+- ✅ Reduced motion support
+- ✅ Color contrast ≥ 4.5:1
+- ✅ Semantic HTML
+- ✅ Skip navigation link
+
+## 📊 Analytics & Monitoring
+
+- Sentry for error tracking
+- Analytics events on all major interactions
+- Performance monitoring with Web Vitals
+- User engagement metrics
+- Smart contract event indexing
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: \`git checkout -b feature/your-feature\`
+3. Commit changes: \`git commit -am 'Add feature'\`
+4. Push to branch: \`git push origin feature/your-feature\`
+5. Submit pull request
+
+## 📄 License
+
+MIT License - see LICENSE.md
+
+## 📞 Support
+
+- **Issues:** GitHub Issues
+- **Email:** support@ritualfeed.com
+- **Docs:** https://docs.ritualfeed.com
+
+---
+
+**RitualFeed** — Where autonomous agents meet human curiosity.
+```
+
+**After Lovable generates:** Check README renders correctly in markdown preview.
+
+---
+
+## QUICK REFERENCE: FULL PROMPT SEQUENCE
+
+Run prompts in this exact order:
+
+| Phase | Prompt | Purpose |
+|-------|--------|---------|
+| 1 | P1-01 | Project scaffold |
+| 1 | P1-02 | Wagmi setup |
+| 1 | P1-03 | Environment & API |
+| 2 | P2-01 | Paper card component |
+| 2 | P2-02 | Digest feed |
+| 2 | P2-03 | Agent status |
+| 2 | P2-04 | Mobile bottom sheet |
+| 3 | P3-01 | Search engine |
+| 3 | P3-02 | Recommendations |
+| 3 | P3-03 | RAG chatbot |
+| 3 | P3-04 | Analytics dashboard |
+| 4 | P4-01 | Error handling |
+| 4 | P4-02 | Security hardening |
+| 4 | P4-03 | Responsive + A11y |
+| 5 | P5-01 | Production build |
+| 5 | P5-02 | README & docs |
+
+---
+
+## FINAL PRE-DEPLOYMENT CHECKLIST
+
+✅ **Architecture & Code Quality**
+- [ ] Zero TypeScript errors
+- [ ] ESLint passes (no warnings)
+- [ ] All imports resolve
+- [ ] No console errors in DevTools
+- [ ] Dark mode fully functional
+- [ ] Mobile: 1 column | Tablet: 2 columns | Desktop: 3 columns
+
+✅ **Features & Functionality**
+- [ ] Paper feed displays live contract data
+- [ ] All filters work (topic, author, date)
+- [ ] Search returns results
+- [ ] Recommendations refresh
+- [ ] Chat sends/receives messages
+- [ ] Analytics show live metrics
+- [ ] Wallet connect/disconnect works
+- [ ] Wrong network warning appears
+
+✅ **Security & Validation**
+- [ ] All inputs validated (Zod)
+- [ ] XSS protection active
+- [ ] Wallet address validated
+- [ ] API errors handled gracefully
+- [ ] Rate limiting ready
+- [ ] No sensitive data in logs
+
+✅ **Accessibility & Performance**
+- [ ] Skip link present
+- [ ] Tab order logical
+- [ ] Focus ring visible (2px blue)
+- [ ] Color contrast ≥ 4.5:1
+- [ ] Reduced motion respected
+- [ ] Load time < 3 seconds (Lighthouse)
+- [ ] Core Web Vitals green
+- [ ] Lighthouse score ≥ 90
+
+✅ **Deployment Ready**
+- [ ] .env.production complete
+- [ ] Vercel.json configured
+- [ ] Security headers set
+- [ ] Environment variables in Vercel dashboard
+- [ ] Build completes without errors
+- [ ] Production build size < 500KB
+- [ ] CDN caching configured
+
+---
+
+## SUPPORT & TROUBLESHOOTING
+
+### Common Issues
+
+**Issue: Wagmi provider errors**  
+→ Ensure `WagmiProvider` wraps entire app in `layout.tsx`
+
+**Issue: Contract ABI validation fails**  
+→ Verify `CONTRACT_ADDRESS` in `.env.local` is valid
+
+**Issue: Search returns no results**  
+→ Check backend API endpoint in `.env.local`
+
+**Issue: Dark mode not toggling**  
+→ Verify `dark` class on `<html>` element
+
+**Issue: Mobile sheet overlaps content**  
+→ Check bottom padding on body when sheet open
+
+---
+
+**End of RitualFeed Comprehensive Lovable Prompt Playbook v2.0**
+
+For updates, submit issues to: github.com/your-org/ritualfeed
