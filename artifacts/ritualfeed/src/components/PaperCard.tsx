@@ -97,13 +97,16 @@ export function PaperCard({
         {summary}
       </p>
 
-      {/* AI Summary */}
+      {/* AI Summary — collapsed by default, expands on hover */}
       {aiSummary && (
-        <div className="mt-3 p-2.5 rounded-md bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-400">
-          <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
+        <div className="group/ai mt-3 p-2.5 rounded-md bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-400 cursor-default transition-all duration-200">
+          <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-1">
             ✨ AI Summary
+            <span className="text-blue-400 dark:text-blue-500 text-[10px] font-normal group-hover/ai:hidden transition-opacity">
+              — hover to expand
+            </span>
           </p>
-          <p className="text-xs text-blue-700 dark:text-blue-400 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed line-clamp-1 group-hover/ai:line-clamp-none transition-all duration-200">
             {aiSummary}
           </p>
         </div>
