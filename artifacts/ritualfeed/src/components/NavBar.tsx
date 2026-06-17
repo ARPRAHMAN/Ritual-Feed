@@ -7,8 +7,10 @@ import { AboutModal } from './AboutModal'
 function useDarkMode() {
   const [dark, setDark] = useState(() => {
     if (typeof window === 'undefined') return false
-    return document.documentElement.classList.contains('dark') ||
+    return (
+      document.documentElement.classList.contains('dark') ||
       localStorage.getItem('theme') === 'dark'
+    )
   })
 
   useEffect(() => {
@@ -26,20 +28,24 @@ function useDarkMode() {
   return [dark, setDark] as const
 }
 
-export function NavBar() {
+interface NavBarProps {
+  onSearch: (query: string) => void
+  onSearchOpen: () => void
+}
+
+export function NavBar({ onSearch, onSearchOpen }: NavBarProps) {
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
   const wrongNetwork = isConnected && chainId !== 1979
   const [dark, setDark] = useDarkMode()
-  const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [notifCount] = useState(2)
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      setSearchOpen(false)
+      onSearch(searchQuery.trim())
       setSearchQuery('')
     }
   }
@@ -60,17 +66,18 @@ export function NavBar() {
 
           {/* Search bar (desktop) */}
           <div className="hidden md:flex flex-1 max-w-md">
-            <form onSubmit={handleSearch} className="w-full">
+            <form onSubmit={handleSubmit} className="w-full">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search papers by title, author, topic..."
-                  className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onFocus={() => !searchQuery && onSearchOpen()}
+                  placeholder='Search papers: "Quantum AI", "LLMs"…'
+                  className="w-full pl-9 pr-9 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors cursor-pointer"
                 />
-                {searchQuery && (
+                {searchQuery ? (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
@@ -79,20 +86,24 @@ export function NavBar() {
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
+                ) : (
+                  <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:inline-flex items-center gap-1 text-[10px] text-slate-400 font-mono bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-1 py-0.5">
+                    ↵
+                  </kbd>
                 )}
               </div>
             </form>
           </div>
 
           {/* Right actions */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Mobile search toggle */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Mobile search */}
             <button
-              onClick={() => setSearchOpen(!searchOpen)}
+              onClick={onSearchOpen}
               className="md:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              aria-label="Toggle search"
+              aria-label="Open search"
             >
-              <Search className="w-4.5 h-4.5" />
+              <Search className="w-5 h-5" />
             </button>
 
             {/* Notification bell */}
@@ -101,7 +112,7 @@ export function NavBar() {
               aria-label={`Notifications (${notifCount} unread)`}
               title="Notifications"
             >
-              <Bell className="w-4.5 h-4.5" />
+              <Bell className="w-5 h-5" />
               {notifCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
@@ -110,39 +121,20 @@ export function NavBar() {
               )}
             </button>
 
-            {/* Dark mode toggle */}
+            {/* Dark mode */}
             <button
               onClick={() => setDark(!dark)}
               className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
               title={dark ? 'Light mode' : 'Dark mode'}
             >
-              {dark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
+              {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             <AboutModal />
             <WalletButton />
           </div>
         </div>
-
-        {/* Mobile search (expands below nav) */}
-        {searchOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 py-3 md:hidden">
-            <form onSubmit={handleSearch}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search papers..."
-                  autoFocus
-                  className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </form>
-          </div>
-        )}
       </header>
 
       {/* Wrong network banner */}
