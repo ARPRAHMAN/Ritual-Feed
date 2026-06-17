@@ -1,8 +1,10 @@
 import React from 'react'
-import { X, ExternalLink, Bookmark, Heart, Share2, ArrowLeft, Loader2 } from 'lucide-react'
+import { X, ExternalLink, Bookmark, Heart, Share2, ArrowLeft, Loader2, Download, Link2, Check } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import type { SearchPaper } from '../utils/searchApis'
 import type { SearchState } from '../hooks/useMultiSearch'
+import { exportDigestAsPDF, getShareableUrl } from '../utils/exportDigest'
 
 const SOURCE_COLORS: Record<string, { bg: string; text: string }> = {
   'arXiv': { bg: '#EDE9FE', text: '#5B21B6' },
@@ -205,10 +207,25 @@ interface SearchOverlayProps extends SearchState {
 
 export function SearchOverlay({ results, isLoading, error, query, sourceStats, onClose, onSearch }: SearchOverlayProps) {
   const [input, setInput] = useState(query)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) onSearch(input.trim())
+  }
+
+  const handleExportPDF = () => {
+    const ok = exportDigestAsPDF(results, query)
+    if (!ok) toast.error('Pop-ups are blocked. Please allow pop-ups and try again.')
+    else toast.success('PDF opened — use your browser\'s print dialog to save.')
+  }
+
+  const handleCopyLink = async () => {
+    const url = getShareableUrl(query)
+    await navigator.clipboard.writeText(url)
+    setLinkCopied(true)
+    toast.success('Shareable link copied to clipboard!')
+    setTimeout(() => setLinkCopied(false), 3000)
   }
 
   const sources = Object.entries(sourceStats)
@@ -254,10 +271,10 @@ export function SearchOverlay({ results, isLoading, error, query, sourceStats, o
         </button>
       </div>
 
-      {/* Sources row */}
+      {/* Sources + actions row */}
       {sources.length > 0 && (
         <div className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 px-4 py-2 flex items-center gap-3 flex-wrap">
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Sources:</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">Sources:</span>
           {sources.map(([src, count]) => {
             const c = SOURCE_COLORS[src] ?? { bg: '#F3F4F6', text: '#6B7280' }
             return (
@@ -270,7 +287,34 @@ export function SearchOverlay({ results, isLoading, error, query, sourceStats, o
               </span>
             )
           })}
-          <span className="text-xs text-slate-400 ml-auto">{results.length} papers found</span>
+          <span className="text-xs text-slate-400">{results.length} papers</span>
+
+          {/* Export / Share actions */}
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={handleCopyLink}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                linkCopied
+                  ? 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-400'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500'
+              }`}
+              aria-label="Copy shareable link"
+              title="Copy shareable link"
+            >
+              {linkCopied ? <Check className="w-3.5 h-3.5" /> : <Link2 className="w-3.5 h-3.5" />}
+              {linkCopied ? 'Copied!' : 'Share Link'}
+            </button>
+
+            <button
+              onClick={handleExportPDF}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              aria-label="Export digest as PDF"
+              title="Save as PDF"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Save PDF
+            </button>
+          </div>
         </div>
       )}
 

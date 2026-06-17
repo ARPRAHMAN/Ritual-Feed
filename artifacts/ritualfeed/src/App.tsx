@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { WagmiProvider, createConfig, http } from 'wagmi'
 import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -8,6 +8,7 @@ import { NavBar } from './components/NavBar'
 import Feed from './pages/Feed'
 import { SearchOverlay } from './components/SearchOverlay'
 import { useMultiSearch } from './hooks/useMultiSearch'
+import { parseSearchQuery, setUrlQuery } from './utils/exportDigest'
 
 const config = createConfig({
   chains: [ritualTestnet],
@@ -29,13 +30,25 @@ function AppContent() {
   const [searchOpen, setSearchOpen] = useState(false)
   const multiSearch = useMultiSearch()
 
+  // On load: auto-search if ?q= is in the URL
+  useEffect(() => {
+    const q = parseSearchQuery()
+    if (q) {
+      setSearchOpen(true)
+      multiSearch.search(q)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleSearch = (query: string) => {
     setSearchOpen(true)
+    setUrlQuery(query)
     multiSearch.search(query)
   }
 
   const handleClose = () => {
     setSearchOpen(false)
+    setUrlQuery(null)
     multiSearch.clear()
   }
 
