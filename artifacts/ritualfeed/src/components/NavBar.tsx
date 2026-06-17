@@ -31,9 +31,10 @@ function useDarkMode() {
 interface NavBarProps {
   onSearch: (query: string) => void
   onSearchOpen: () => void
+  onHome?: () => void
 }
 
-export function NavBar({ onSearch, onSearchOpen }: NavBarProps) {
+export function NavBar({ onSearch, onSearchOpen, onHome }: NavBarProps) {
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
@@ -55,14 +56,19 @@ export function NavBar({ onSearch, onSearchOpen }: NavBarProps) {
       <header className="fixed top-0 left-0 right-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 z-50 h-16 flex items-center">
         <div className="max-w-[1200px] mx-auto px-6 w-full flex items-center justify-between gap-4">
           {/* Logo */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+          <button
+            onClick={onHome}
+            className="flex items-center gap-2 shrink-0 group"
+            aria-label="Back to home"
+            title="Back to home"
+          >
+            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center group-hover:bg-blue-700 transition-colors">
               <span className="text-white text-xs font-bold">RF</span>
             </div>
-            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               RitualFeed
             </span>
-          </div>
+          </button>
 
           {/* Search bar (desktop) */}
           <div className="hidden md:flex flex-1 max-w-md">

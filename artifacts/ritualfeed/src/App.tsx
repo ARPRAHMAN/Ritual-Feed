@@ -51,6 +51,11 @@ function AppContent() {
     setLaunched(true)
   }
 
+  const handleHome = () => {
+    localStorage.removeItem('rf_launched')
+    setLaunched(false)
+  }
+
   const handleSearch = (query: string) => {
     setSearchOpen(true)
     setUrlQuery(query)
@@ -69,7 +74,7 @@ function AppContent() {
 
   return (
     <>
-      <NavBar onSearch={handleSearch} onSearchOpen={() => setSearchOpen(true)} />
+      <NavBar onSearch={handleSearch} onSearchOpen={() => setSearchOpen(true)} onHome={handleHome} />
       <div className="pt-16">
         <Feed />
       </div>
