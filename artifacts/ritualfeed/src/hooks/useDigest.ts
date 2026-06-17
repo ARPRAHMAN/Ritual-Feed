@@ -1,5 +1,5 @@
 import { useReadContract, useWatchContractEvent } from 'wagmi'
-import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI } from '../config'
+import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI, IS_CONFIGURED } from '../config'
 import { inferTopic, extractArxivUrl } from '../utils/paperUtils'
 
 export interface Paper {
@@ -23,7 +23,7 @@ export function useDigest() {
     address: CONTRACT_ADDRESS,
     abi: DIGEST_AGENT_ABI,
     functionName: 'getLatestDigest',
-    query: { enabled: CONTRACT_ADDRESS !== 'YOUR_CONTRACT_ADDRESS' },
+    query: { enabled: IS_CONFIGURED },
   })
 
   useWatchContractEvent({
@@ -31,7 +31,7 @@ export function useDigest() {
     abi: DIGEST_AGENT_ABI,
     eventName: 'DigestPublished',
     onLogs: () => { refetch() },
-    enabled: CONTRACT_ADDRESS !== 'YOUR_CONTRACT_ADDRESS',
+    enabled: IS_CONFIGURED,
   })
 
   const digest: DigestData | null = data

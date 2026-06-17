@@ -4,13 +4,11 @@ import { useAccount, useChainId } from 'wagmi'
 import { useAgentStatus } from '../hooks/useAgentStatus'
 import { useSubscription } from '../hooks/useSubscription'
 import { formatRelativeTime } from '../utils/paperUtils'
-import { EXPLORER_URL, CONTRACT_ADDRESS, SUBSCRIPTION_PRICE } from '../config'
+import { EXPLORER_URL, CONTRACT_ADDRESS, SUBSCRIPTION_PRICE, IS_CONFIGURED } from '../config'
 import { MOCK_AGENT_STATUS } from '../data/mockDigest'
 import { formatEther } from 'viem'
 import { toast } from 'sonner'
 import { WalletModal } from './WalletButton'
-
-const IS_CONFIGURED = CONTRACT_ADDRESS !== 'YOUR_CONTRACT_ADDRESS'
 
 interface MetricRowProps {
   icon: React.ElementType

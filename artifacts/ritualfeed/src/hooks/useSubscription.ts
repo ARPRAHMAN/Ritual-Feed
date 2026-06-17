@@ -1,5 +1,5 @@
 import { useAccount, useReadContract, useWriteContract } from 'wagmi'
-import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI, SUBSCRIPTION_PRICE } from '../config'
+import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI, SUBSCRIPTION_PRICE, IS_CONFIGURED } from '../config'
 
 export function useSubscription() {
   const { address } = useAccount()
@@ -9,7 +9,7 @@ export function useSubscription() {
     abi: DIGEST_AGENT_ABI,
     functionName: 'isSubscribed',
     args: [address ?? '0x0000000000000000000000000000000000000000'],
-    query: { enabled: !!address && CONTRACT_ADDRESS !== 'YOUR_CONTRACT_ADDRESS' },
+    query: { enabled: !!address && IS_CONFIGURED },
   })
 
   const {

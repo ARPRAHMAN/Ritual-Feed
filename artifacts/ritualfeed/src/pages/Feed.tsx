@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useAccount, useChainId } from 'wagmi'
 import { useWatchContractEvent } from 'wagmi'
 import { useDigest } from '../hooks/useDigest'
 import { PaperCard, PaperCardSkeleton, type PaperTopic } from '../components/PaperCard'
 import { AgentStatusSidebar } from '../components/AgentStatusPanel'
 import { MobileStatusBar } from '../components/MobileStatusSheet'
 import { MOCK_DIGEST, MOCK_AGENT_STATUS } from '../data/mockDigest'
-import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI } from '../config'
+import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI, IS_CONFIGURED } from '../config'
 import { formatRelativeTime } from '../utils/paperUtils'
 import { toast } from 'sonner'
 
@@ -18,8 +17,6 @@ const TOPICS: Array<{ key: 'All' | PaperTopic; label: string }> = [
   { key: 'RL', label: 'Reinforcement Learning' },
   { key: 'Other', label: 'Other' },
 ]
-
-const IS_CONFIGURED = CONTRACT_ADDRESS !== 'YOUR_CONTRACT_ADDRESS'
 
 type SortKey = 'recent' | 'score'
 
