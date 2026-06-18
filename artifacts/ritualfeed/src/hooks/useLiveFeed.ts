@@ -1,28 +1,38 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Paper } from './useDigest'
 import { inferTopic } from '../utils/paperUtils'
+import type { PaperTopic } from '../utils/paperUtils'
 import { MOCK_DIGEST } from '../data/mockDigest'
 
-const REFRESH_INTERVAL_MS = 10 * 60 * 1000 // 10 minutes
-
-interface LivePaper extends Paper {
+export interface LivePaper extends Paper {
   authors?: string
 }
 
-const ARXIV_CATS = [
-  'cs.LG',  // Machine Learning
-  'cs.CV',  // Computer Vision
-  'cs.CL',  // Computation and Language (NLP)
-  'cs.AI',  // Artificial Intelligence
-  'cs.NE',  // Neural and Evolutionary Computing
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000
+const BATCH = 12
+
+// Category → forced topic (null means use inferTopic on title)
+const ARXIV_CATS: Array<{ cat: string; topicOverride: PaperTopic | null }> = [
+  { cat: 'cs.LG', topicOverride: 'ML' },   // Machine Learning
+  { cat: 'cs.CV', topicOverride: 'CV' },   // Computer Vision
+  { cat: 'cs.CL', topicOverride: 'NLP' },  // Computation and Language
+  { cat: 'cs.AI', topicOverride: null },    // Artificial Intelligence — infer from title
+  { cat: 'cs.NE', topicOverride: 'ML' },   // Neural & Evolutionary Computing
+  { cat: 'cs.RO', topicOverride: 'RL' },   // Robotics → maps to RL bucket
 ]
 
-async function fetchArxivCat(cat: string, maxResults = 6): Promise<LivePaper[]> {
+async function fetchArxivCat(
+  cat: string,
+  topicOverride: PaperTopic | null,
+  maxResults: number,
+  start: number,
+): Promise<LivePaper[]> {
   const url =
     `https://export.arxiv.org/api/query?search_query=cat:${cat}` +
-    `&max_results=${maxResults}&sortBy=submittedDate&sortOrder=descending`
+    `&max_results=${maxResults}&start=${start}` +
+    `&sortBy=submittedDate&sortOrder=descending`
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`arXiv fetch failed for ${cat}`)
+  if (!res.ok) throw new Error(`arXiv ${cat} failed`)
   const text = await res.text()
   const parser = new DOMParser()
   const xml = parser.parseFromString(text, 'application/xml')
@@ -39,10 +49,9 @@ async function fetchArxivCat(cat: string, maxResults = 6): Promise<LivePaper[]> 
       .slice(0, 3)
       .join(', ')
     const idUrl = e.querySelector('id')?.textContent?.trim() ?? ''
-    const arxivId = idUrl.split('/abs/').pop()?.replace(/v\d+$/, '') ?? String(i)
+    const arxivId = idUrl.split('/abs/').pop()?.replace(/v\d+$/, '') ?? String(start + i)
     const published = e.querySelector('published')?.textContent?.trim() ?? ''
-    // Score: first results score higher, slight random variation
-    const baseScore = Math.max(0.5, 0.97 - i * 0.04)
+    const baseScore = Math.max(0.5, 0.97 - ((start + i) * 0.015))
     const score = Math.min(0.99, baseScore + (Math.random() * 0.04 - 0.02))
 
     return {
@@ -51,10 +60,21 @@ async function fetchArxivCat(cat: string, maxResults = 6): Promise<LivePaper[]> 
       score,
       summary,
       arxivUrl: `https://arxiv.org/abs/${arxivId}`,
-      topic: inferTopic(title),
+      // Use forced category topic; fall back to title inference
+      topic: topicOverride ?? inferTopic(title),
       publishedAt: published ? new Date(published) : new Date(),
       cycleCount: 0,
     }
+  })
+}
+
+function dedup(papers: LivePaper[]): LivePaper[] {
+  const seen = new Set<string>()
+  return papers.filter(p => {
+    const key = p.title.toLowerCase().slice(0, 60)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
   })
 }
 
@@ -74,38 +94,66 @@ function mockFallback(): LivePaper[] {
 export function useLiveFeed() {
   const [papers, setPapers] = useState<LivePaper[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+
+  // Track current offset per category for pagination
+  const offsetsRef = useRef<Record<string, number>>(
+    Object.fromEntries(ARXIV_CATS.map(c => [c.cat, 0]))
+  )
 
   const fetchAll = useCallback(async () => {
     setIsLoading(true)
+    // Reset offsets on a full refresh
+    const nextOffsets = Object.fromEntries(ARXIV_CATS.map(c => [c.cat, BATCH]))
     try {
       const results = await Promise.allSettled(
-        ARXIV_CATS.map(cat => fetchArxivCat(cat, 6))
+        ARXIV_CATS.map(({ cat, topicOverride }) =>
+          fetchArxivCat(cat, topicOverride, BATCH, 0)
+        )
       )
-
       const all: LivePaper[] = []
       for (const r of results) {
         if (r.status === 'fulfilled') all.push(...r.value)
       }
-
       if (all.length === 0) {
         setPapers(mockFallback())
       } else {
-        // Deduplicate by normalised title prefix
-        const seen = new Set<string>()
-        const unique = all.filter(p => {
-          const key = p.title.toLowerCase().slice(0, 60)
-          if (seen.has(key)) return false
-          seen.add(key)
-          return true
-        })
-        setPapers(unique)
+        setPapers(dedup(all))
         setLastUpdated(new Date())
+        offsetsRef.current = nextOffsets
       }
     } catch {
       setPapers(mockFallback())
     } finally {
       setIsLoading(false)
+    }
+  }, [])
+
+  const loadMore = useCallback(async () => {
+    setIsLoadingMore(true)
+    try {
+      const results = await Promise.allSettled(
+        ARXIV_CATS.map(({ cat, topicOverride }) =>
+          fetchArxivCat(cat, topicOverride, BATCH, offsetsRef.current[cat] ?? 0)
+        )
+      )
+      const newPapers: LivePaper[] = []
+      for (const r of results) {
+        if (r.status === 'fulfilled') newPapers.push(...r.value)
+      }
+      // Advance offsets
+      const updated = { ...offsetsRef.current }
+      for (const { cat } of ARXIV_CATS) {
+        updated[cat] = (updated[cat] ?? 0) + BATCH
+      }
+      offsetsRef.current = updated
+
+      if (newPapers.length > 0) {
+        setPapers(prev => dedup([...prev, ...newPapers]))
+      }
+    } finally {
+      setIsLoadingMore(false)
     }
   }, [])
 
@@ -115,5 +163,5 @@ export function useLiveFeed() {
     return () => clearInterval(id)
   }, [fetchAll])
 
-  return { papers, isLoading, lastUpdated, refetch: fetchAll }
+  return { papers, isLoading, isLoadingMore, lastUpdated, refetch: fetchAll, loadMore }
 }

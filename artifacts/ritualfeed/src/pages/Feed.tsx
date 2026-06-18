@@ -21,11 +21,14 @@ const TOPICS: Array<{ key: 'All' | PaperTopic; label: string }> = [
 
 type SortKey = 'recent' | 'score'
 
+const PAGE_SIZE = 12
+
 export default function Feed() {
   const [activeTopic, setActiveTopic] = useState<'All' | PaperTopic>('All')
   const [sortBy, setSortBy] = useState<SortKey>('recent')
   const [relativeTime, setRelativeTime] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE)
 
   // On-chain digest (used when a contract is configured)
   const { digest, isLoading: chainLoading, isError, refetch: chainRefetch } = useDigest()
@@ -54,6 +57,12 @@ export default function Feed() {
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
 
+  // Reset display count when topic/sort changes
+  useEffect(() => { setDisplayCount(PAGE_SIZE) }, [activeTopic, sortBy])
+
+  const displayed = sorted.slice(0, displayCount)
+  const hasMoreCached = displayCount < sorted.length
+
   useEffect(() => {
     const update = () => {
       if (lastUpdated) setRelativeTime(formatRelativeTime(lastUpdated))
@@ -81,6 +90,7 @@ export default function Feed() {
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true)
+    setDisplayCount(PAGE_SIZE)
     if (IS_CONFIGURED) {
       await chainRefetch()
     } else {
@@ -88,6 +98,17 @@ export default function Feed() {
     }
     setTimeout(() => setIsRefreshing(false), 1000)
   }, [chainRefetch, liveFeed])
+
+  const handleLoadMore = useCallback(async () => {
+    if (hasMoreCached) {
+      // Show more from already-fetched papers
+      setDisplayCount(c => c + PAGE_SIZE)
+    } else {
+      // Fetch next page from arXiv and then show more
+      await liveFeed.loadMore()
+      setDisplayCount(c => c + PAGE_SIZE)
+    }
+  }, [hasMoreCached, liveFeed])
 
   const isLoading = IS_CONFIGURED ? chainLoading : liveFeed.isLoading
   const showSkeleton = isLoading
@@ -253,14 +274,14 @@ export default function Feed() {
               <div
                 className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
                 role="list"
-                aria-label={`Research feed — ${sorted.length} papers`}
+                aria-label={`Research feed — ${displayed.length} of ${sorted.length} papers`}
               >
                 {sorted.length === 0 ? (
                   <div className="col-span-full py-12 text-center text-sm text-slate-400 dark:text-slate-500">
                     No papers in this category yet.
                   </div>
                 ) : (
-                  sorted.map((paper, i) => (
+                  displayed.map((paper, i) => (
                     <div
                       key={`${paper.title}-${i}`}
                       role="listitem"
@@ -288,8 +309,21 @@ export default function Feed() {
             {/* Load more */}
             {!showSkeleton && !showEmpty && !showError && sorted.length > 0 && (
               <div className="mt-8 text-center">
-                <button className="px-6 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200">
-                  Load More Papers
+                <button
+                  onClick={handleLoadMore}
+                  disabled={liveFeed.isLoadingMore}
+                  className="px-6 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+                >
+                  {liveFeed.isLoadingMore ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Loading…
+                    </>
+                  ) : (
+                    `Load More Papers${hasMoreCached ? ` (${sorted.length - displayCount} more cached)` : ''}`
+                  )}
                 </button>
               </div>
             )}
