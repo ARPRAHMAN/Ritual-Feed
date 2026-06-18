@@ -30,3 +30,8 @@ externalPort = 8081
 [[ports]]
 localPort = 20331
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+VITE_RECEIVER_ADDRESS = "0x4c761604930fE38f4cAfFF26f7e4668E316af526"

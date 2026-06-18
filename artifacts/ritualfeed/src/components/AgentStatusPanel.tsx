@@ -3,8 +3,12 @@ import { Activity, TrendingUp, Zap, Wallet, ChevronRight } from 'lucide-react'
 import { useAccount, useChainId } from 'wagmi'
 import { useAgentStatus } from '../hooks/useAgentStatus'
 import { useSubscription } from '../hooks/useSubscription'
+import { useDirectSubscription } from '../hooks/useDirectSubscription'
 import { formatRelativeTime } from '../utils/paperUtils'
-import { EXPLORER_URL, CONTRACT_ADDRESS, SUBSCRIPTION_PRICE, IS_CONFIGURED } from '../config'
+import {
+  EXPLORER_URL, CONTRACT_ADDRESS, SUBSCRIPTION_PRICE,
+  IS_CONFIGURED, IS_DIRECT_PAYMENT, RECEIVER_ADDRESS,
+} from '../config'
 import { MOCK_AGENT_STATUS } from '../data/mockDigest'
 import { formatEther } from 'viem'
 import { toast } from 'sonner'
@@ -40,6 +44,14 @@ export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentSta
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const { cycleCount, walletBalance, nextWakeupBlock } = useAgentStatus()
+
+  // Always call both hooks (Rules of Hooks — no conditional calls)
+  const contractSub = useSubscription()
+  const directSub = useDirectSubscription(
+    RECEIVER_ADDRESS ?? '0x0000000000000000000000000000000000000000'
+  )
+
+  // Pick the active subscription hook based on configured mode
   const {
     isSubscribed,
     handleSubscribe,
@@ -47,7 +59,7 @@ export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentSta
     isSubscribing,
     isUnsubscribing,
     refetchStatus,
-  } = useSubscription()
+  } = IS_DIRECT_PAYMENT ? directSub : contractSub
 
   const wrongNetwork = isConnected && chainId !== 1979
   const subPrice = formatEther(SUBSCRIPTION_PRICE)
@@ -186,7 +198,9 @@ export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentSta
           <div className="space-y-3">
             <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Get the Digest</h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Subscribe to receive AI research digests as they are published on-chain.
+              {IS_DIRECT_PAYMENT
+                ? 'One-time payment sent directly to the digest owner on Ritual Chain.'
+                : 'Subscribe to receive AI research digests as they are published on-chain.'}
             </p>
 
             {/* Price row */}
@@ -236,17 +250,31 @@ export function AgentStatusContent({ lastUpdated, onSubscribeSuccess }: AgentSta
 
       {/* Explorer link */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-        <a
-          href={`${EXPLORER_URL}/address/${CONTRACT_ADDRESS}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-          View contract on Ritual Explorer
-        </a>
+        {IS_DIRECT_PAYMENT && RECEIVER_ADDRESS ? (
+          <a
+            href={`${EXPLORER_URL}/address/${RECEIVER_ADDRESS}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            View receiver wallet on Explorer
+          </a>
+        ) : (
+          <a
+            href={`${EXPLORER_URL}/address/${CONTRACT_ADDRESS}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            View contract on Ritual Explorer
+          </a>
+        )}
       </div>
 
       {/* Wallet connect modal (triggered from subscribe CTA) */}

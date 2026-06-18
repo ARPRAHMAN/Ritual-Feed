@@ -28,19 +28,21 @@ Autonomous AI research digest frontend powered by an agent running on Ritual Cha
 
 ## Environment Variables
 
-Set these before connecting to a real contract:
+Three operating modes depending on which variables are set:
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_CONTRACT_ADDRESS` | Deployed DigestAgent.sol address on Ritual testnet |
-| `VITE_SUBSCRIPTION_PRICE_WEI` | Subscription price in wei (e.g. `10000000000000000` for 0.01 RITUAL) |
+| `VITE_RECEIVER_ADDRESS` | **Your wallet address** — subscribers send 0.01 RITUAL directly here (no contract needed) |
+| `VITE_CONTRACT_ADDRESS` | Deployed DigestAgent.sol address — full on-chain mode (takes priority over receiver) |
+| `VITE_SUBSCRIPTION_PRICE_WEI` | Subscription price in wei (default: `10000000000000000` = 0.01 RITUAL) |
 | `VITE_WALLETCONNECT_PROJECT_ID` | WalletConnect project ID from cloud.walletconnect.com |
 | `VITE_EXPLORER_URL` | Block explorer base URL (default: https://explorer.ritualfoundation.org) |
 
 ## Architecture decisions
 
 - **No backend server needed** — all data comes directly from Ritual Chain via wagmi contract reads
-- **Demo mode** — when `VITE_CONTRACT_ADDRESS` is not set, the app shows mock data so the UI is always testable
+- **Three modes**: demo (no env vars) → direct wallet payment (`VITE_RECEIVER_ADDRESS`) → full contract (`VITE_CONTRACT_ADDRESS`)
+- **Direct payment mode** — `useDirectSubscription` sends native RITUAL transfer via `useSendTransaction`; subscription state stored in localStorage per wallet address
 - **ConnectKit replaced with native wagmi connectors** — avoids React 19 peer dependency conflicts; uses injected + Coinbase + WalletConnect connectors directly
 - **wagmi v2 + viem v2** — pinned for stability; wagmi v3 broke connectkit compatibility
 - **Live updates via `useWatchContractEvent`** — auto-refetches feed when `DigestPublished` fires
