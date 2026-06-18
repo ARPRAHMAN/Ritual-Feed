@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useWatchContractEvent } from 'wagmi'
 import { useDigest } from '../hooks/useDigest'
+import { useLiveFeed } from '../hooks/useLiveFeed'
 import { PaperCard, PaperCardSkeleton, type PaperTopic } from '../components/PaperCard'
 import { AgentStatusSidebar } from '../components/AgentStatusPanel'
 import { MobileStatusBar } from '../components/MobileStatusSheet'
-import { MOCK_DIGEST, MOCK_AGENT_STATUS } from '../data/mockDigest'
+import { MOCK_AGENT_STATUS } from '../data/mockDigest'
 import { CONTRACT_ADDRESS, DIGEST_AGENT_ABI, IS_CONFIGURED } from '../config'
 import { formatRelativeTime } from '../utils/paperUtils'
 import { toast } from 'sonner'
@@ -26,18 +27,23 @@ export default function Feed() {
   const [relativeTime, setRelativeTime] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const { digest, isLoading, isError, refetch } = useDigest()
+  // On-chain digest (used when a contract is configured)
+  const { digest, isLoading: chainLoading, isError, refetch: chainRefetch } = useDigest()
+
+  // Live arXiv feed (used in demo mode)
+  const liveFeed = useLiveFeed()
 
   const papers = IS_CONFIGURED
     ? (digest?.papers ?? [])
-    : MOCK_DIGEST.map(p => ({ ...p }))
+    : liveFeed.papers
 
   const cycleCount = IS_CONFIGURED
     ? (digest?.cycleCount ?? null)
     : MOCK_AGENT_STATUS.cycleCount
+
   const lastUpdated = IS_CONFIGURED
     ? (digest?.lastUpdated ?? null)
-    : MOCK_AGENT_STATUS.lastDigest
+    : (liveFeed.lastUpdated ?? MOCK_AGENT_STATUS.lastDigest)
 
   const filtered = activeTopic === 'All'
     ? papers
@@ -68,18 +74,23 @@ export default function Feed() {
       const paperCount = log?.args?.paperCount
       toast(`🔔 New digest published! Cycle #${cycleId} — ${paperCount} papers scored.`, {
         duration: 8000,
-        action: { label: 'Update Feed', onClick: () => refetch() },
+        action: { label: 'Update Feed', onClick: () => chainRefetch() },
       })
     },
   })
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true)
-    await refetch()
+    if (IS_CONFIGURED) {
+      await chainRefetch()
+    } else {
+      await liveFeed.refetch()
+    }
     setTimeout(() => setIsRefreshing(false), 1000)
-  }, [refetch])
+  }, [chainRefetch, liveFeed])
 
-  const showSkeleton = IS_CONFIGURED && isLoading
+  const isLoading = IS_CONFIGURED ? chainLoading : liveFeed.isLoading
+  const showSkeleton = isLoading
   const showError = IS_CONFIGURED && isError
   const showEmpty = IS_CONFIGURED && !isLoading && !isError && papers.length === 0
 
@@ -145,11 +156,13 @@ export default function Feed() {
         aria-live="polite"
         className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 py-2 px-6 text-center text-xs text-slate-400 dark:text-slate-500"
       >
-        {cycleCount != null
-          ? `Cycle #${cycleCount} · Last updated ${relativeTime || (lastUpdated ? formatRelativeTime(lastUpdated) : '—')} · ${papers.length} papers scored`
-          : IS_CONFIGURED
-          ? 'Fetching digest...'
-          : 'Demo mode — connect a contract to see live data'}
+        {IS_CONFIGURED
+          ? (cycleCount != null
+              ? `Cycle #${cycleCount} · Last updated ${relativeTime || (lastUpdated ? formatRelativeTime(lastUpdated) : '—')} · ${papers.length} papers scored`
+              : 'Fetching digest...')
+          : liveFeed.isLoading
+          ? 'Fetching latest papers from arXiv…'
+          : `Live from arXiv · Refreshed ${relativeTime || (lastUpdated ? formatRelativeTime(lastUpdated) : 'just now')} · ${papers.length} papers`}
       </div>
 
       {/* Main content */}
